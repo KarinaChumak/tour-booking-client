@@ -18,6 +18,8 @@ import AppRouter from './routers/AppRouter';
 import isAdminSubdomain from '../utils/subdomain';
 import AdminRouter from './routers/AdminRouter';
 
+const appMode = import.meta.env.VITE_APP_MODE;
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 60 * 1000 },
@@ -25,9 +27,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const isAdmin = isAdminSubdomain();
-
-  console.log(isAdmin);
+  console.log(appMode);
   return (
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -35,7 +35,7 @@ function App() {
           <CssBaseline></CssBaseline>
 
           <BrowserRouter>
-            {isAdmin ? (
+            {appMode === 'admin' ? (
               <AdminRouter></AdminRouter>
             ) : (
               <AppRouter></AppRouter>
