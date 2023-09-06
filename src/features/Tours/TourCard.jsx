@@ -15,6 +15,7 @@ import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import FmdGoodTwoToneIcon from '@mui/icons-material/FmdGoodTwoTone';
 import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone';
 import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
+import { formatDate } from '../../../utils/helpers';
 
 const OverlayedText = styled('h2')`
   position: absolute;
@@ -113,15 +114,8 @@ function TourCard({ tour }) {
                   fontSize="large"
                 ></CalendarMonthTwoToneIcon>
                 <span>
-                  {' '}
-                  {new Date(tour.startDates[0]).toLocaleString(
-                    'en-us',
-                    {
-                      day: 'numeric',
-                      month: 'numeric',
-                      year: 'numeric',
-                    }
-                  )}
+                  {/* TODO: StartDate -> will be a single value, not an array */}
+                  {formatDate(tour.startDates[0])}
                 </span>
               </Feature>
             </Grid>
@@ -178,7 +172,7 @@ function TourCard({ tour }) {
           <Button
             color="primary"
             variant="contained"
-            disableElevation={true}
+            disableElevation
             style={{
               minWidth: '120px',
               fontSize: '1rem',

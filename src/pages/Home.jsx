@@ -5,8 +5,8 @@ import { styled } from '@mui/system';
 import { Button, Box, CircularProgress } from '@mui/material';
 import Header from '../ui/Header';
 import SearchBar from '../ui/SearchBar';
-import Tours from '../features/Tours/Tours';
-import  BackgroundImage  from '../ui/BackgroundImage';
+import Tours from '../features/tours/Tours';
+import BackgroundImage from '../ui/BackgroundImage';
 
 const apiUrl = import.meta.env.VITE_API_ADDRESS;
 

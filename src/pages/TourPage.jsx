@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import TourOverview from '../features/Tours/TourOverview';
+import TourOverview from '../features/tours/TourOverview';
 
 function TourPage() {
   const params = useParams();

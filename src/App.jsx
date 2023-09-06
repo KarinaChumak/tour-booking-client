@@ -1,6 +1,9 @@
 // import { ColorModeContext, useMode } from '../theme';
-import { Button, CssBaseline, ThemeProvider } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from '@mui/material';
 
+// npm uninstall @mui/material @mui/joy @emotion/react @emotion/styled
+// npm install @mui/material @mui/joy @emotion/react @emotion/styled
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -13,21 +16,23 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { theme } from '../theme';
+import { colors, theme } from '../theme';
 import AppRouter from './routers/AppRouter';
-import isAdminSubdomain from '../utils/subdomain';
+
 import AdminRouter from './routers/AdminRouter';
 
+import NotificationsToaster from './ui/NotificationsToaster';
 const appMode = import.meta.env.VITE_APP_MODE;
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 60 * 1000 },
+    // queries: { staleTime: 60 * 1000 },
+
+    queries: { staleTime: 0 },
   },
 });
 
 function App() {
-  console.log(appMode);
   return (
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -43,6 +48,8 @@ function App() {
           </BrowserRouter>
         </ThemeProvider>
       </LocalizationProvider>
+
+      <NotificationsToaster></NotificationsToaster>
     </QueryClientProvider>
   );
 }
