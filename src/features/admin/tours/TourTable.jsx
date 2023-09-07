@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { colors } from '../../../../theme';
-import useTours from '../../Tours/useTours';
+import useTours from '../../tours/useTours';
 import TourRow from './TourRow';
 import Loader from '../../../ui/Loader';
 
