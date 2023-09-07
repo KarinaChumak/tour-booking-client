@@ -25,32 +25,19 @@ export async function deleteOneTour(id) {
 
 export async function createOneTour(newTour) {
   console.log(newTour);
-  console.log(newTour.imageCover.type);
   const responseCreate = await axios.post(`${apiUrl}/api/v1/tours`, {
     ...newTour,
     imageCover: newTour.imageCover.name,
     startDates: [newTour.startDate],
-    startLocation: {
-      description: 'NYC, USA',
-      type: 'Point',
-      coordinates: [-73.985141, 40.75894],
-      address: 'Manhattan, NY 10036, USA',
-    },
   });
+  console.log(responseCreate);
 
   if (responseCreate.status !== 201) return responseCreate;
-  else {
+  else if (newTour.imageCover) {
     const newTourId = responseCreate.data.data.tour.id;
 
     const form = new FormData();
-
-    for (const key in newTour) {
-      if (key === 'field') {
-        form.append(key, newTour[key][1]);
-      } else {
-        form.append(key, newTour[key]);
-      }
-    }
+    form.append('imageCover', newTour.imageCover);
 
     const responseUpdate = await axios.patch(
       `${apiUrl}/api/v1/tours/${newTourId}`,

@@ -43,13 +43,24 @@ function ImageDelete({ imageSrc, onClick }) {
   );
 }
 
-function ImagePreview({ fileName, imageSrc, onClick }) {
+function ImagePreview({
+  fileName,
+  imageSrc,
+  onClick,
+  vertical = false,
+}) {
+  const styleObj = {};
+  if (vertical) {
+    styleObj['flexDirection'] = 'column';
+    styleObj['gap'] = '5px';
+    styleObj['fontSize'] = '0.6rem';
+  }
   return (
-    <StyledContainer>
+    <StyledContainer style={styleObj}>
       {imageSrc && (
         <ImageDelete imageSrc={imageSrc} onClick={onClick} />
       )}
-      <p>{fileName || 'No file selected'}</p>
+      <p>{fileName}</p>
     </StyledContainer>
   );
 }

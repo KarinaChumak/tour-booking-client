@@ -13,7 +13,7 @@ function AdminTours() {
         <h3>Filters for tours</h3>
       </Box>
 
-      {/* <TourTable></TourTable> */}
+      <TourTable></TourTable>
       <Button
         variant="contained"
         disableElevation

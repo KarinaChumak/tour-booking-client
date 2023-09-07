@@ -4,21 +4,46 @@ import { styled } from '@mui/system';
 import { useEffect, useRef, useState } from 'react';
 import ImagePreview from './ImagePreview';
 
-function FileUploadInput({ field, formState, resetFn }) {
+const PreviewContainer = styled('div')`
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+`;
+
+const StyledInputContainer = styled('div')`
+  display: flex;
+  width: 100%;
+  gap: 15px;
+`;
+
+function FileUploadInput({
+  field,
+  formState,
+  resetFn,
+  id,
+  multiple = false,
+}) {
   // Create a reference to the hidden file input element
-  console.log(field.value);
+
   const hiddenFileInput = useRef(null);
-  const [selectedFileName, setSelectedFileName] = useState(null);
-  const [tmpImage, setTmpImage] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  // To simplify dependencies in useEffect
+  const { value: fieldValue, onChange: fieldOnchange } = field;
 
   useEffect(
     function () {
-      if (!field.value) {
-        setSelectedFileName(null);
-        setTmpImage(null);
+      if (!fieldValue) {
+        setSelectedFiles([]);
       }
     },
-    [formState.isSubmitSuccessful, field.value]
+    [formState.isSubmitSuccessful, fieldValue]
+  );
+
+  useEffect(
+    function () {
+      fieldOnchange(selectedFiles);
+    },
+    [selectedFiles, fieldOnchange]
   );
 
   // Programatically click the hidden file input element
@@ -28,29 +53,32 @@ function FileUploadInput({ field, formState, resetFn }) {
   };
 
   const onChangeAggregated = (e) => {
-    if (!e) {
-      setTmpImage(null);
-      setSelectedFileName(null);
-      hiddenFileInput.current.value = null;
-      resetFn();
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFiles((selectedFiles) => [
+        ...selectedFiles,
+        ...Object.values(e.target.files),
+      ]);
     }
-    // Setting tmp image for preview
-    if (e.target.files && e.target.files[0]) {
-      setTmpImage(URL.createObjectURL(e.target.files[0]));
-    }
+  };
 
-    setSelectedFileName(
-      (selectedFileName) =>
-        hiddenFileInput.current?.files[0]?.name || selectedFileName
+  const handleDelete = (fileToDelete) => {
+    setSelectedFiles((selectedFiles) =>
+      selectedFiles.filter((file) => file.name !== fileToDelete.name)
     );
 
-    field.onChange([...e.target.value]);
+    if (selectedFiles.length === 0) {
+      resetFn();
+    }
   };
 
   return (
-    <>
+    <StyledInputContainer
+      style={{
+        flexDirection: `${multiple ? 'column' : 'row'}`,
+      }}
+    >
       <Button
-        id="input-tour-imageCover"
+        id={id}
         variant="outlined"
         startIcon={
           <CloudUploadOutlinedIcon></CloudUploadOutlinedIcon>
@@ -58,22 +86,38 @@ function FileUploadInput({ field, formState, resetFn }) {
         sx={{ width: '30%' }}
         onClick={handleClick}
       >
-        Select file
+        {multiple
+          ? selectedFiles.length === 0
+            ? 'Select files'
+            : 'Add more files'
+          : 'Select 1 file'}
       </Button>
 
       <input
         type="file"
-        multiple
+        accept="image/*"
+        multiple={multiple}
         ref={hiddenFileInput}
         onChange={onChangeAggregated}
         style={{ display: 'none' }} // Make the file input element invisible
       />
-      <ImagePreview
-        fileName={selectedFileName}
-        imageSrc={tmpImage}
-        onClick={() => onChangeAggregated(null)}
-      ></ImagePreview>
-    </>
+
+      <PreviewContainer>
+        {selectedFiles.length > 0
+          ? selectedFiles?.map((file) => (
+              <ImagePreview
+                key={file.name}
+                fileName={file.name}
+                vertical={multiple}
+                imageSrc={URL.createObjectURL(file)}
+                onClick={() => handleDelete(file)}
+              ></ImagePreview>
+            ))
+          : multiple
+          ? 'No files selected'
+          : 'File is not selected'}
+      </PreviewContainer>
+    </StyledInputContainer>
   );
 }
 

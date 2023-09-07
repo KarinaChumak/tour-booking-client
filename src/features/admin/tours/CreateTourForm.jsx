@@ -4,6 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 
 import {
   Button,
+  Divider,
   InputLabel,
   MenuItem,
   Paper,
@@ -20,19 +21,9 @@ import { colors } from '../../../../theme';
 import { useUserRole } from '../users/useUsers';
 import GuidesSelect from '../../../ui/GuidesSelect';
 import FileUploadInput from '../../../ui/FileUploadInput';
+import LocationAutocompleteInput from '../../../ui/LocationAutocompleteInput';
+import getGeocoding from '../../../services/geocodingService';
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -113,13 +104,27 @@ function CreateTourForm() {
 
   const { errors } = formState;
 
-  function onSubmit(data) {
-    console.log(data);
-    // mutate({
-    //   ...data,
-    //   imageCover: data.imageCover[0],
-    //   tourGuides: data.tourGuides.map((guide) => guide._id),
-    // });
+  async function onSubmit(data) {
+    const { data: geocodedData } = await getGeocoding(
+      data.startLocation.place_id
+    );
+
+    const { formatted_address, geometry } = geocodedData.result;
+
+    const startLocation = {
+      description:
+        data.startLocation.structured_formatting.secondary_text,
+      type: 'Point',
+      coordinates: [geometry.location.lng, geometry.location.lat],
+      address: formatted_address,
+    };
+
+    mutate({
+      ...data,
+      imageCover: data.imageCover[0],
+      guides: data.guides.map((guide) => guide._id),
+      startLocation,
+    });
   }
 
   function onError(errors, data) {
@@ -143,7 +148,7 @@ function CreateTourForm() {
       <StyledH1>Create new tour</StyledH1>
       <StyledForm onSubmit={handleSubmit(onSubmit, onError)}>
         <StyledInputLabel htmlFor="input-tour-name">
-          Name
+          Name<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <TextField
@@ -158,75 +163,8 @@ function CreateTourForm() {
             <StyledError>{errors?.name?.message}</StyledError>
           )}
         </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-startDate">
-          Start date
-        </StyledInputLabel>
-        <StyledInputDiv>
-          <Controller
-            control={control}
-            name="startDate"
-            render={({ field }) => (
-              <DatePicker
-                size="small"
-                sx={{ width: '50%' }}
-                onChange={(date) => field.onChange(date)}
-                slotProps={{ textField: { size: 'small' } }}
-                selected={field.value}
-              />
-            )}
-          />
-
-          {errors?.startDate?.message && (
-            <StyledError>{errors?.startDate?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-duration">
-          Duration (days)
-        </StyledInputLabel>
-        <StyledInputDiv>
-          <TextField
-            id="input-tour-duration"
-            {...register('duration', {
-              required: 'This field is required',
-              min: {
-                value: 1,
-                message: `Tour duration should be at least 1 day`,
-              },
-              max: {
-                value: 30,
-                message: `Tour duration should be no more than 30 days`,
-              },
-            })}
-            size="small"
-            sx={{ width: '50%', maxHeight: '50px' }}
-          />
-          {errors?.duration?.message && (
-            <StyledError>{errors?.duration?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-maxGroup">
-          Max group size
-        </StyledInputLabel>
-        <StyledInputDiv>
-          <TextField
-            type="number"
-            id="input-tour-maxGroup"
-            {...register('maxGroupSize', {
-              required: 'This field is required',
-              min: {
-                value: 1,
-                message: `Group size should be at least 1`,
-              },
-            })}
-            size="small"
-            sx={{ width: '50%', maxHeight: '50px' }}
-          />
-          {errors?.maxGroupSize?.message && (
-            <StyledError>{errors?.maxGroupSize?.message}</StyledError>
-          )}
-        </StyledInputDiv>
         <StyledInputLabel htmlFor="input-tour-difficulty">
-          Difficulty
+          Difficulty<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <TextField
@@ -251,8 +189,36 @@ function CreateTourForm() {
             <StyledError>{errors?.difficulty?.message}</StyledError>
           )}
         </StyledInputDiv>
+        <StyledInputLabel htmlFor="input-tour-maxGroup">
+          Max group size<sup>*</sup>
+        </StyledInputLabel>
+        <StyledInputDiv>
+          <TextField
+            type="number"
+            id="input-tour-maxGroup"
+            {...register('maxGroupSize', {
+              required: 'This field is required',
+              min: {
+                value: 1,
+                message: `Group size should be at least 1`,
+              },
+            })}
+            size="small"
+            sx={{ width: '50%', maxHeight: '50px' }}
+          />
+          {errors?.maxGroupSize?.message && (
+            <StyledError>{errors?.maxGroupSize?.message}</StyledError>
+          )}
+        </StyledInputDiv>
+        <Divider
+          sx={{
+            gridColumn: '1 / 3',
+            color: 'primary',
+            width: '100%',
+          }}
+        />
         <StyledInputLabel htmlFor="input-tour-price">
-          Price
+          Price<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <TextField
@@ -273,8 +239,75 @@ function CreateTourForm() {
             <StyledError>{errors?.price?.message}</StyledError>
           )}
         </StyledInputDiv>{' '}
+        <Divider
+          sx={{
+            gridColumn: '1 / 3',
+            color: 'primary',
+            width: '100%',
+          }}
+        />
+        <StyledInputLabel htmlFor="input-tour-duration">
+          Duration (days)<sup>*</sup>
+        </StyledInputLabel>
+        <StyledInputDiv>
+          <TextField
+            id="input-tour-duration"
+            {...register('duration', {
+              required: 'This field is required',
+              min: {
+                value: 1,
+                message: `Tour duration should be at least 1 day`,
+              },
+              max: {
+                value: 30,
+                message: `Tour duration should be no more than 30 days`,
+              },
+            })}
+            size="small"
+            sx={{ width: '50%', maxHeight: '50px' }}
+          />
+          {errors?.duration?.message && (
+            <StyledError>{errors?.duration?.message}</StyledError>
+          )}
+        </StyledInputDiv>
+        <StyledInputLabel htmlFor="input-tour-startDate">
+          Start date
+        </StyledInputLabel>
+        <StyledInputDiv>
+          <Controller
+            control={control}
+            name="startDate"
+            render={({ field }) => (
+              <DatePicker
+                size="small"
+                sx={{ width: '50%' }}
+                onChange={(date) => field.onChange(date)}
+                slotProps={{ textField: { size: 'small' } }}
+                selected={field.value}
+              />
+            )}
+          />
+
+          {errors?.startDate?.message && (
+            <StyledError>{errors?.startDate?.message}</StyledError>
+          )}
+        </StyledInputDiv>
+        <StyledInputLabel htmlFor="input-tour-name">
+          Start location
+        </StyledInputLabel>
+        <StyledInputDiv>
+          <Controller
+            control={control}
+            name="startLocation"
+            render={({ field }) => (
+              <LocationAutocompleteInput
+                register={(e) => field.onChange(e)}
+              />
+            )}
+          />
+        </StyledInputDiv>
         <StyledInputLabel htmlFor="input-tour-summary">
-          Summary
+          Summary<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <TextField
@@ -293,7 +326,7 @@ function CreateTourForm() {
           )}
         </StyledInputDiv>
         <StyledInputLabel htmlFor="input-tour-description">
-          Description
+          Description<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <TextField
@@ -312,7 +345,7 @@ function CreateTourForm() {
           )}
         </StyledInputDiv>
         <StyledInputLabel htmlFor="input-tour-imageCover">
-          Cover image
+          Cover image<sup>*</sup>
         </StyledInputLabel>
         <StyledInputDiv>
           <Controller
@@ -332,14 +365,13 @@ function CreateTourForm() {
             <StyledError>{errors?.imageCover?.message}</StyledError>
           )}
         </StyledInputDiv>
-        {/* Tour guides */}
         <StyledInputLabel htmlFor="input-tour-guides">
           Tour guides
         </StyledInputLabel>
         <StyledInputDiv>
           <Controller
             control={control}
-            name="tourGuides"
+            name="guides"
             defaultValue={[]}
             render={({ field, formState }) => (
               <GuidesSelect
@@ -354,8 +386,25 @@ function CreateTourForm() {
           {errors?.guides?.message && (
             <StyledError>{errors?.guides?.message}</StyledError>
           )}
-        </StyledInputDiv>{' '}
-        {/*  */}
+        </StyledInputDiv>
+        <StyledInputLabel htmlFor="input-tour-images">
+          Tour images
+        </StyledInputLabel>
+        <StyledInputDiv>
+          <Controller
+            control={control}
+            name="images"
+            render={({ field, formState }) => (
+              <FileUploadInput
+                field={field}
+                multiple={true}
+                formState={formState}
+                id={'input-tour-images'}
+                resetFn={() => resetField('images')}
+              />
+            )}
+          />
+        </StyledInputDiv>
         <Box
           sx={{ gridColumn: 2, width: '80%', marginTop: '30px' }}
           display={'flex'}
