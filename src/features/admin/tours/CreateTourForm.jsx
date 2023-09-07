@@ -115,11 +115,11 @@ function CreateTourForm() {
 
   function onSubmit(data) {
     console.log(data);
-    mutate({
-      ...data,
-      imageCover: data.imageCover[0],
-      tourGuides: data.tourGuides.map((guide) => guide._id),
-    });
+    // mutate({
+    //   ...data,
+    //   imageCover: data.imageCover[0],
+    //   tourGuides: data.tourGuides.map((guide) => guide._id),
+    // });
   }
 
   function onError(errors, data) {
@@ -171,6 +171,7 @@ function CreateTourForm() {
                 sx={{ width: '50%' }}
                 onChange={(date) => field.onChange(date)}
                 slotProps={{ textField: { size: 'small' } }}
+                selected={field.value}
               />
             )}
           />
@@ -314,12 +315,18 @@ function CreateTourForm() {
           Cover image
         </StyledInputLabel>
         <StyledInputDiv>
-          <FileUploadInput
-            resetFn={() => resetField('imageCover')}
-            registerObj={register('imageCover', {
-              required: 'This field is required',
-            })}
-          ></FileUploadInput>
+          <Controller
+            control={control}
+            name="imageCover"
+            rules={{ required: 'This field is required' }}
+            render={({ field, formState }) => (
+              <FileUploadInput
+                field={field}
+                formState={formState}
+                resetFn={() => resetField('imageCover')}
+              />
+            )}
+          />
 
           {errors?.imageCover?.message && (
             <StyledError>{errors?.imageCover?.message}</StyledError>
@@ -330,11 +337,19 @@ function CreateTourForm() {
           Tour guides
         </StyledInputLabel>
         <StyledInputDiv>
-          <GuidesSelect
-            guides={guides}
-            leadGuides={leadGuides}
-            registerObj={register('tourGuides')}
-          ></GuidesSelect>
+          <Controller
+            control={control}
+            name="tourGuides"
+            defaultValue={[]}
+            render={({ field, formState }) => (
+              <GuidesSelect
+                guides={guides}
+                leadGuides={leadGuides}
+                field={field}
+                formState={formState}
+              />
+            )}
+          />
 
           {errors?.guides?.message && (
             <StyledError>{errors?.guides?.message}</StyledError>

@@ -4,26 +4,21 @@ import { styled } from '@mui/system';
 import { useEffect, useRef, useState } from 'react';
 import ImagePreview from './ImagePreview';
 
-function FileUploadInput({ registerObj, resetFn }) {
+function FileUploadInput({ field, formState, resetFn }) {
   // Create a reference to the hidden file input element
-
-  const {
-    name,
-    onBlur,
-    onChange: registerOnChange,
-    ref: registerRef,
-  } = registerObj;
-
+  console.log(field.value);
   const hiddenFileInput = useRef(null);
   const [selectedFileName, setSelectedFileName] = useState(null);
   const [tmpImage, setTmpImage] = useState(null);
 
   useEffect(
     function () {
-      setSelectedFileName(null);
-      setTmpImage(null);
+      if (!field.value) {
+        setSelectedFileName(null);
+        setTmpImage(null);
+      }
     },
-    [registerObj]
+    [formState.isSubmitSuccessful, field.value]
   );
 
   // Programatically click the hidden file input element
@@ -36,6 +31,7 @@ function FileUploadInput({ registerObj, resetFn }) {
     if (!e) {
       setTmpImage(null);
       setSelectedFileName(null);
+      hiddenFileInput.current.value = null;
       resetFn();
     }
     // Setting tmp image for preview
@@ -48,9 +44,7 @@ function FileUploadInput({ registerObj, resetFn }) {
         hiddenFileInput.current?.files[0]?.name || selectedFileName
     );
 
-    if (registerOnChange) {
-      registerOnChange(e);
-    }
+    field.onChange([...e.target.value]);
   };
 
   return (
@@ -70,14 +64,8 @@ function FileUploadInput({ registerObj, resetFn }) {
       <input
         type="file"
         multiple
-        {...registerObj}
-        ref={(e) => {
-          registerRef(e);
-          hiddenFileInput.current = e;
-        }}
+        ref={hiddenFileInput}
         onChange={onChangeAggregated}
-        name={name}
-        onBlur={onBlur}
         style={{ display: 'none' }} // Make the file input element invisible
       />
       <ImagePreview

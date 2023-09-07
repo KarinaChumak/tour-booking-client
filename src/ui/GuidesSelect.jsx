@@ -9,26 +9,29 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { styled } from '@mui/system';
+import { Controller } from 'react-hook-form';
 
 const StyledGuideItem = styled(MenuItem)`
   gap: 10px;
 `;
 
-function GuidesSelect({ leadGuides, guides, registerObj }) {
+function GuidesSelect({ leadGuides, guides, field, formState }) {
   const [selectedPeople, setSelectedPeople] = useState([]);
-  const {
-    name,
-    onBlur,
-    onChange: registerOnChange,
-    ref: registerRef,
-  } = registerObj;
 
   const handleChange = (event) => {
     setSelectedPeople([...event.target.value]);
-    if (registerOnChange) {
-      registerOnChange(event);
-    }
+    field.onChange([...event.target.value]);
   };
+
+  // Workaroud to sync local state (selectedPeople) for displaying guied in a select list. If using field.value as a value source, MUI doesn't highlight selected options
+  // TODO: ask someone why is that. How does MUI detect select list items uniqueness?
+
+  useEffect(
+    function () {
+      if (field.value.length === 0) setSelectedPeople(field.value);
+    },
+    [formState.isSubmitSuccessful, field.value]
+  );
 
   return (
     <Select
@@ -36,9 +39,6 @@ function GuidesSelect({ leadGuides, guides, registerObj }) {
       id="demo-multiple-chip"
       multiple
       value={selectedPeople}
-      name={name}
-      onBlur={onBlur}
-      ref={registerRef}
       onChange={handleChange}
       sx={{
         width: '80%',
