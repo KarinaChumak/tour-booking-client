@@ -3,7 +3,7 @@ import NotFound from '../pages/NotFound';
 import AdminLayout from '../pages/admin/AdminLayout';
 
 import Login from '../pages/Login';
-import Dashboard from '../features/admin/dashboard/Dashboard';
+// import Dashboard from '../features/admin/dashboard/Dashboard';
 import AdminBookings from '../pages/admin/AdminBookings';
 import AdminTours from '../pages/admin/adminTours';
 import AdminUsers from '../pages/admin/adminUsers';
@@ -16,10 +16,7 @@ function AdminRouter() {
           index
           element={<Navigate replace to="dashboard"></Navigate>}
         ></Route>
-        <Route
-          path="dashboard"
-          element={<Dashboard></Dashboard>}
-        ></Route>
+        <Route path="dashboard" element={<p></p>}></Route>
         <Route
           path="bookings"
           element={<AdminBookings></AdminBookings>}
