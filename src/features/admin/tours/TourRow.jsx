@@ -17,6 +17,7 @@ import TourControlMenu from '../../../ui/TourControlMenu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteOneTour } from '../../../services/tourService';
 import { toast } from 'react-hot-toast';
+import CreateTourForm from './CreateTourForm';
 
 const StyledCell = (props) => (
   <TableCell sx={{ color: colors.grey[700] }}>
@@ -25,6 +26,7 @@ const StyledCell = (props) => (
 );
 
 function TourRow({ tour }) {
+  const [showForm, setShowForm] = useState(false);
   const leadGuide = tour.guides.find(
     (guide) => guide.role === 'lead-guide'
   );
@@ -44,29 +46,39 @@ function TourRow({ tour }) {
   });
 
   return (
-    <TableRow sx={{ color: colors.green[400] }}>
-      <StyledCell>{name}</StyledCell>
+    <>
+      <TableRow sx={{ color: colors.green[400] }}>
+        <StyledCell>{name}</StyledCell>
 
-      {/* TODO: change API to return obly a single start date */}
-      <StyledCell>{formatDate(startDates[0])}</StyledCell>
-      <StyledCell>{startLocation.description}</StyledCell>
-      <StyledCell>
-        <Box display="flex" gap="1rem" alignItems="center">
-          <Avatar src={leadGuide?.photo}></Avatar>
-          {leadGuide?.name || 'No guide assigned yet'}
-        </Box>
-      </StyledCell>
-      <StyledCell>People booked</StyledCell>
-      <StyledCell>
-        <Chip label="Booked" color="primary"></Chip>
-      </StyledCell>
-      <StyledCell>
-        {/* <TourControlMenu></TourControlMenu> */}
-        <Button onClick={() => mutate(id)}>
-          {isDeleting ? 'Deleting...' : 'Delete'}
-        </Button>
-      </StyledCell>
-    </TableRow>
+        {/* TODO: change API to return obly a single start date */}
+        <StyledCell>{formatDate(startDates[0])}</StyledCell>
+        <StyledCell>{startLocation.description}</StyledCell>
+        <StyledCell>
+          <Box display="flex" gap="1rem" alignItems="center">
+            <Avatar src={leadGuide?.photo}></Avatar>
+            {leadGuide?.name || 'No guide assigned yet'}
+          </Box>
+        </StyledCell>
+        <StyledCell>People booked</StyledCell>
+        <StyledCell>
+          <Chip label="Booked" color="primary"></Chip>
+        </StyledCell>
+        <StyledCell>
+          {/* <TourControlMenu></TourControlMenu> */}
+          <Button onClick={() => setShowForm(!showForm)}>Edit</Button>
+          <Button onClick={() => mutate(id)}>
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </StyledCell>
+      </TableRow>
+      {showForm && (
+        <TableRow>
+          <TableCell colSpan={7}>
+            <CreateTourForm tourToEdit={tour}></CreateTourForm>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }
 

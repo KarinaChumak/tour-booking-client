@@ -2,14 +2,7 @@ import { styled } from '@mui/system';
 
 import { DatePicker } from '@mui/x-date-pickers';
 
-import {
-  Button,
-  Divider,
-  InputLabel,
-  MenuItem,
-  Paper,
-  TextField,
-} from '@mui/material';
+import { Button, Paper, TextField } from '@mui/material';
 import { Box } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { useState } from 'react';
@@ -17,32 +10,23 @@ import { toast } from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { createOneTour } from '../../../services/tourService';
-import { colors } from '../../../../theme';
 import { useUserRole } from '../users/useUsers';
 import GuidesSelect from '../../../ui/GuidesSelect';
 import FileUploadInput from '../../../ui/FileUploadInput';
 import LocationAutocompleteInput from '../../../ui/LocationAutocompleteInput';
-import getGeocoding from '../../../services/geocodingService';
+import CreateTourFormRow from './CreateTourFormRow';
+import DifficultyInput from '../../../ui/DifficultyInput';
+import {
+  getFormatedLocation,
+  getFormattedProgram,
+} from '../../../../utils/location';
+import ProgramInput from './ProgramInput';
+import { ProgramProvider } from '../../../contexts/ProgramContext';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
+const MAX_DURATION = 30;
 
 const StyledH1 = styled('h1')`
   text-align: left;
-`;
-
-const StyledInputLabel = styled(InputLabel)`
-  padding-left: 10px;
-  font-size: 1rem;
-  color: ${colors.grey[800]};
 `;
 
 const StyledForm = styled('form')`
@@ -52,33 +36,10 @@ const StyledForm = styled('form')`
   row-gap: 15px;
 `;
 
-const StyledInputDiv = styled('div')`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 10px;
-`;
-
-const StyledError = styled('p')`
-  background-color: ${colors.red[100]};
-  color: ${colors.red[600]};
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-`;
-function CreateTourForm() {
-  const {
-    isLoading,
-    error,
-    users: leadGuides,
-  } = useUserRole('lead-guide');
-  const {
-    isLoading: guidesLoading,
-    error: guidesError,
-    users: guides,
-  } = useUserRole('guide');
-
-  const [value, setValue] = useState(null);
+function CreateTourForm({ tourToEdit }) {
+  const [duration, setDuration] = useState(0);
+  const { users: leadGuides } = useUserRole('lead-guide');
+  const { users: guides } = useUserRole('guide');
   const queryClient = useQueryClient();
 
   const { mutate, isLoading: isCreating } = useMutation({
@@ -105,31 +66,33 @@ function CreateTourForm() {
   const { errors } = formState;
 
   async function onSubmit(data) {
-    const { data: geocodedData } = await getGeocoding(
-      data.startLocation.place_id
+    const startLocation = await getFormatedLocation(
+      data.startLocation
     );
 
-    const { formatted_address, geometry } = geocodedData.result;
-
-    const startLocation = {
-      description:
-        data.startLocation.structured_formatting.secondary_text,
-      type: 'Point',
-      coordinates: [geometry.location.lng, geometry.location.lat],
-      address: formatted_address,
-    };
-
+    const formattedProgram = await getFormattedProgram(data.program);
     mutate({
       ...data,
       imageCover: data.imageCover[0],
       guides: data.guides.map((guide) => guide._id),
       startLocation,
+      program: formattedProgram,
     });
+
+    // console.log(data);
   }
 
   function onError(errors, data) {
     console.log(errors);
-    console.log(data);
+  }
+
+  function handleDurationChange(e, field) {
+    const duration = parseInt(e.target.value);
+
+    if (duration <= MAX_DURATION) {
+      setDuration(parseInt(e.target.value) || 0);
+      field.onChange(parseInt(e.target.value));
+    }
   }
 
   return (
@@ -146,11 +109,14 @@ function CreateTourForm() {
       }}
     >
       <StyledH1>Create new tour</StyledH1>
+
       <StyledForm onSubmit={handleSubmit(onSubmit, onError)}>
-        <StyledInputLabel htmlFor="input-tour-name">
-          Name<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+        <CreateTourFormRow
+          label="Name"
+          name="name"
+          required={true}
+          errors={errors}
+        >
           <TextField
             id="input-tour-name"
             {...register('name', {
@@ -159,40 +125,25 @@ function CreateTourForm() {
             size="small"
             sx={{ width: '50%' }}
           />
-          {errors?.name?.message && (
-            <StyledError>{errors?.name?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-difficulty">
-          Difficulty<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
-          <TextField
-            select
-            id="input-tour-difficulty"
-            {...register('difficulty', {
+        </CreateTourFormRow>
+        <CreateTourFormRow
+          label="Difficulty"
+          name="difficulty"
+          required={true}
+          errors={errors}
+        >
+          <DifficultyInput
+            registerObj={register('difficulty', {
               required: 'This field is required',
             })}
-            size="small"
-            defaultValue={'easy'}
-            sx={{
-              width: '50%',
-              maxHeight: '50px',
-              textAlign: 'left',
-            }}
-          >
-            <MenuItem value={'easy'}>easy</MenuItem>
-            <MenuItem value={'medium'}>medium</MenuItem>
-            <MenuItem value={'difficult'}>difficult</MenuItem>
-          </TextField>
-          {errors?.difficulty?.message && (
-            <StyledError>{errors?.difficulty?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-maxGroup">
-          Max group size<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+          ></DifficultyInput>
+        </CreateTourFormRow>
+        <CreateTourFormRow
+          label={'Max group size'}
+          name="maxGroup"
+          required={true}
+          errors={errors}
+        >
           <TextField
             type="number"
             id="input-tour-maxGroup"
@@ -206,21 +157,14 @@ function CreateTourForm() {
             size="small"
             sx={{ width: '50%', maxHeight: '50px' }}
           />
-          {errors?.maxGroupSize?.message && (
-            <StyledError>{errors?.maxGroupSize?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <Divider
-          sx={{
-            gridColumn: '1 / 3',
-            color: 'primary',
-            width: '100%',
-          }}
-        />
-        <StyledInputLabel htmlFor="input-tour-price">
-          Price<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Price"
+          name="price"
+          required={true}
+          errors={errors}
+        >
           <TextField
             type="number"
             id="input-tour-price"
@@ -234,46 +178,43 @@ function CreateTourForm() {
             size="small"
             sx={{ width: '50%', maxHeight: '50px' }}
           />
-
-          {errors?.price?.message && (
-            <StyledError>{errors?.price?.message}</StyledError>
-          )}
-        </StyledInputDiv>{' '}
-        <Divider
-          sx={{
-            gridColumn: '1 / 3',
-            color: 'primary',
-            width: '100%',
-          }}
-        />
-        <StyledInputLabel htmlFor="input-tour-duration">
-          Duration (days)<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
-          <TextField
-            id="input-tour-duration"
-            {...register('duration', {
+        </CreateTourFormRow>
+        <CreateTourFormRow
+          label="Duration (days)"
+          name="duration"
+          required={true}
+          errors={errors}
+        >
+          <Controller
+            control={control}
+            name="duration"
+            rules={{
               required: 'This field is required',
               min: {
                 value: 1,
                 message: `Tour duration should be at least 1 day`,
               },
               max: {
-                value: 30,
+                value: MAX_DURATION,
                 message: `Tour duration should be no more than 30 days`,
               },
-            })}
-            size="small"
-            sx={{ width: '50%', maxHeight: '50px' }}
+            }}
+            render={({ field }) => (
+              <TextField
+                id="input-tour-duration"
+                onChange={(e) => handleDurationChange(e, field)}
+                size="small"
+                sx={{ width: '50%', maxHeight: '50px' }}
+              />
+            )}
           />
-          {errors?.duration?.message && (
-            <StyledError>{errors?.duration?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-startDate">
-          Start date
-        </StyledInputLabel>
-        <StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Start date"
+          name="startDate"
+          errors={errors}
+        >
           <Controller
             control={control}
             name="startDate"
@@ -287,15 +228,13 @@ function CreateTourForm() {
               />
             )}
           />
+        </CreateTourFormRow>
 
-          {errors?.startDate?.message && (
-            <StyledError>{errors?.startDate?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-name">
-          Start location
-        </StyledInputLabel>
-        <StyledInputDiv>
+        <CreateTourFormRow
+          label="Start location"
+          name="startLocation"
+          errors={errors}
+        >
           <Controller
             control={control}
             name="startLocation"
@@ -305,11 +244,14 @@ function CreateTourForm() {
               />
             )}
           />
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-summary">
-          Summary<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Summary"
+          name="summary"
+          required={true}
+          errors={errors}
+        >
           <TextField
             multiline
             minRows={2}
@@ -321,14 +263,14 @@ function CreateTourForm() {
             size="small"
             sx={{ width: '50%' }}
           />
-          {errors?.summary?.message && (
-            <StyledError>{errors?.summary?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-description">
-          Description<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Description"
+          name="description"
+          required={true}
+          errors={errors}
+        >
           <TextField
             id="input-tour-description"
             multiline
@@ -340,14 +282,14 @@ function CreateTourForm() {
             maxRows={30}
             minRows={5}
           />
-          {errors?.description?.message && (
-            <StyledError>{errors?.description?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-imageCover">
-          Cover image<sup>*</sup>
-        </StyledInputLabel>
-        <StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Cover image"
+          name="imageCover"
+          required={true}
+          errors={errors}
+        >
           <Controller
             control={control}
             name="imageCover"
@@ -360,15 +302,13 @@ function CreateTourForm() {
               />
             )}
           />
+        </CreateTourFormRow>
 
-          {errors?.imageCover?.message && (
-            <StyledError>{errors?.imageCover?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-guides">
-          Tour guides
-        </StyledInputLabel>
-        <StyledInputDiv>
+        <CreateTourFormRow
+          label="Tour guides"
+          name="guides"
+          errors={errors}
+        >
           <Controller
             control={control}
             name="guides"
@@ -382,15 +322,13 @@ function CreateTourForm() {
               />
             )}
           />
+        </CreateTourFormRow>
 
-          {errors?.guides?.message && (
-            <StyledError>{errors?.guides?.message}</StyledError>
-          )}
-        </StyledInputDiv>
-        <StyledInputLabel htmlFor="input-tour-images">
-          Tour images
-        </StyledInputLabel>
-        <StyledInputDiv>
+        <CreateTourFormRow
+          label="Tour images"
+          name="images"
+          errors={errors}
+        >
           <Controller
             control={control}
             name="images"
@@ -404,7 +342,27 @@ function CreateTourForm() {
               />
             )}
           />
-        </StyledInputDiv>
+        </CreateTourFormRow>
+
+        <CreateTourFormRow
+          label="Tour program"
+          name="program"
+          errors={errors}
+        >
+          <ProgramProvider>
+            <Controller
+              control={control}
+              name="program"
+              render={({ field }) => (
+                <ProgramInput
+                  numDays={duration}
+                  register={field.onChange}
+                ></ProgramInput>
+              )}
+            />
+          </ProgramProvider>
+        </CreateTourFormRow>
+
         <Box
           sx={{ gridColumn: 2, width: '80%', marginTop: '30px' }}
           display={'flex'}
@@ -436,8 +394,3 @@ function CreateTourForm() {
 }
 
 export default CreateTourForm;
-
-function TmpInput({ registerObj }) {
-  console.log({ registerObj });
-  return <input type="file" {...registerObj}></input>;
-}

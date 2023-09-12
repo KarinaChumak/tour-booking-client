@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material/utils';
+import { clear } from 'i/lib/inflections';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -25,7 +26,10 @@ function loadScript(src, position, id) {
 const autocompleteService = { current: null };
 
 // Copied from MUI docs: https://mui.com/material-ui/react-autocomplete/
-export default function LocationAutocompleteInput({ register }) {
+export default function LocationAutocompleteInput({
+  register,
+  fullWidth = false,
+}) {
   const [value, setValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState([]);
@@ -96,19 +100,15 @@ export default function LocationAutocompleteInput({ register }) {
 
     setValue(newValue);
 
-    // const placeService =
-    //   new window.google.maps.places.PlacesService();
-
-    // const placeDetails = placeService.getDetails(newValue.place_id);
-
-    // console.log(placeDetails);
-    register(newValue);
+    if (register) {
+      register(newValue);
+    }
   }
 
   return (
     <Autocomplete
       id="google-map-demo"
-      sx={{ width: '50%' }}
+      sx={{ width: `${fullWidth ? '100%' : '50%'}` }}
       size="small"
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option.description

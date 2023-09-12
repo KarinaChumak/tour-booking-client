@@ -3,7 +3,7 @@ import NotFound from '../pages/NotFound';
 import AdminLayout from '../pages/admin/AdminLayout';
 
 import Login from '../pages/Login';
-// import Dashboard from '../features/admin/dashboard/Dashboard';
+import Dashboard from '../features/admin/dashboard/Dashboard';
 import AdminBookings from '../pages/admin/AdminBookings';
 import AdminTours from '../pages/admin/adminTours';
 import AdminUsers from '../pages/admin/adminUsers';
