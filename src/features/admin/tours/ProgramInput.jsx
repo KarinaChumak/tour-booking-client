@@ -4,7 +4,7 @@ import {
   ProgramProvider,
   useTourProgram,
 } from '../../../contexts/ProgramContext';
-function ProgramInput({ numDays, register }) {
+function ProgramInput({ numDays, register, disabled }) {
   const { program, addLocationToProgram, deleteLocationFromProgram } =
     useTourProgram();
 
@@ -19,6 +19,7 @@ function ProgramInput({ numDays, register }) {
     <div style={{ width: '100%' }}>
       {[...Array(numDays).keys()].map((i) => (
         <ProgramSingleDayInput
+          disabled={disabled}
           key={i}
           day={i}
         ></ProgramSingleDayInput>

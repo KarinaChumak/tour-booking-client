@@ -7,8 +7,8 @@ import {
 
 const ProgramContext = createContext();
 
-function ProgramProvider({ children }) {
-  const [program, setProgram] = useState([]);
+function ProgramProvider({ defaultValue, children }) {
+  const [program, setProgram] = useState(defaultValue || []);
 
   function addLocationToProgram(day, location) {
     const dayToAdd = program.filter((item) => item.day === day)[0];

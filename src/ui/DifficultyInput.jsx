@@ -1,9 +1,10 @@
 import { MenuItem, TextField } from '@mui/material';
 
-function DifficultyInput({ registerObj }) {
+function DifficultyInput({ disabled, registerObj }) {
   return (
     <TextField
       select
+      disabled={disabled}
       id="input-tour-difficulty"
       {...registerObj}
       size="small"

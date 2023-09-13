@@ -1,6 +1,7 @@
 import getGeocoding from '../src/services/geocodingService';
 
 export async function getFormatedLocation(startLocation) {
+  console.log(startLocation);
   const { data: geocodedData } = await getGeocoding(
     startLocation.place_id
   );
@@ -9,12 +10,13 @@ export async function getFormatedLocation(startLocation) {
   const { formatted_address, geometry } = geocodedData.result;
 
   const locationFormatted = {
-    description: startLocation.structured_formatting.secondary_text,
+    ...startLocation,
     type: 'Point',
     coordinates: [geometry.location.lng, geometry.location.lat],
     address: formatted_address,
   };
 
+  console.log(locationFormatted);
   return locationFormatted;
 }
 

@@ -2,6 +2,7 @@ import { Box, Button, Input } from '@mui/material';
 import TourTable from '../../features/admin/tours/TourTable';
 import { useState } from 'react';
 import CreateTourForm from '../../features/admin/tours/CreateTourForm';
+import AddTour from '../../features/admin/tours/AddTour';
 
 function AdminTours() {
   const [showForm, setShowForm] = useState(true);
@@ -14,17 +15,7 @@ function AdminTours() {
       </Box>
 
       <TourTable></TourTable>
-      <Button
-        variant="contained"
-        disableElevation
-        size="large"
-        onClick={() => setShowForm((show) => !show)}
-        style={{ maxWidth: '200px' }}
-      >
-        Add new tour
-      </Button>
-
-      {showForm && <CreateTourForm></CreateTourForm>}
+      <AddTour></AddTour>
     </Box>
   );
 }

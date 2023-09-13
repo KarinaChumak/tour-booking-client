@@ -44,7 +44,7 @@ const Accordion = styled((props) => (
   },
 }));
 
-function ProgramSingleDayInput({ day }) {
+function ProgramSingleDayInput({ day, disabled }) {
   const { program, addLocationToProgram, deleteLocationFromProgram } =
     useTourProgram();
 
@@ -61,7 +61,7 @@ function ProgramSingleDayInput({ day }) {
   }
 
   return (
-    <Accordion>
+    <Accordion disabled={disabled}>
       <AccordionSummary
         sx={{
           backgroundColor: colors.lightGreen[100],
@@ -73,7 +73,7 @@ function ProgramSingleDayInput({ day }) {
       <AccordionDetails>
         <StyledLocationsDiv>
           {currentDay?.locations?.map((loc, i) => (
-            <StyledSelectedLocation key={loc.place_id}>
+            <StyledSelectedLocation key={i}>
               <RoomOutlinedIcon
                 sx={{ color: colors.grey[500] }}
               ></RoomOutlinedIcon>

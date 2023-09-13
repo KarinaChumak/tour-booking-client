@@ -1,27 +1,23 @@
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
 import { styled } from '@mui/system';
-
+import dayjs, { Dayjs } from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
-
 import { Button, Paper, TextField } from '@mui/material';
 import { Box } from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { createOneTour } from '../../../services/tourService';
 import { useUserRole } from '../users/useUsers';
+import { useCreateTour } from './useCreateTour';
+import { useEditTour } from './useEditTour';
+import { ProgramProvider } from '../../../contexts/ProgramContext';
+
 import GuidesSelect from '../../../ui/GuidesSelect';
 import FileUploadInput from '../../../ui/FileUploadInput';
 import LocationAutocompleteInput from '../../../ui/LocationAutocompleteInput';
 import CreateTourFormRow from './CreateTourFormRow';
 import DifficultyInput from '../../../ui/DifficultyInput';
-import {
-  getFormatedLocation,
-  getFormattedProgram,
-} from '../../../../utils/location';
 import ProgramInput from './ProgramInput';
-import { ProgramProvider } from '../../../contexts/ProgramContext';
 
 const MAX_DURATION = 30;
 
@@ -36,23 +32,19 @@ const StyledForm = styled('form')`
   row-gap: 15px;
 `;
 
-function CreateTourForm({ tourToEdit }) {
-  const [duration, setDuration] = useState(0);
+function CreateTourForm({ onClose, tourToEdit = {} }) {
+  const {
+    _id: editId,
+    images,
+    imageCover,
+    ...editValues
+  } = tourToEdit;
+
+  const isEditSession = Boolean(editId);
+
+  const [duration, setDuration] = useState(tourToEdit.duration || '');
   const { users: leadGuides } = useUserRole('lead-guide');
   const { users: guides } = useUserRole('guide');
-  const queryClient = useQueryClient();
-
-  const { mutate, isLoading: isCreating } = useMutation({
-    mutationFn: createOneTour,
-    onSuccess: () => {
-      toast.success('New tour successfully created');
-      queryClient.invalidateQueries({ queryKey: ['tours'] });
-      reset();
-    },
-    onError: () => {
-      toast.error(`Couldn't create a new tour`);
-    },
-  });
 
   const {
     register,
@@ -61,25 +53,41 @@ function CreateTourForm({ tourToEdit }) {
     formState,
     resetField,
     control,
-  } = useForm();
+  } = useForm({ defaultValues: isEditSession ? editValues : {} });
 
   const { errors } = formState;
 
+  const { isCreating, mutateCreate } = useCreateTour();
+  const { isEditing, mutateEdit } = useEditTour();
+
+  const isWorking = isCreating || isEditing;
+
   async function onSubmit(data) {
-    const startLocation = await getFormatedLocation(
-      data.startLocation
-    );
-
-    const formattedProgram = await getFormattedProgram(data.program);
-    mutate({
+    const newData = {
       ...data,
-      imageCover: data.imageCover[0],
       guides: data.guides.map((guide) => guide._id),
-      startLocation,
-      program: formattedProgram,
-    });
+      startDates: data.startDate ? [data.startDate] : data.startDates,
+      imageCover: data.imageCover[0],
+    };
 
-    // console.log(data);
+    if (isEditSession) {
+      mutateEdit(
+        { newData, editId },
+        {
+          onSuccess: () => {
+            reset();
+            onClose?.();
+          },
+        }
+      );
+    } else {
+      mutateCreate(newData, {
+        onSuccess: () => {
+          reset();
+          onClose?.();
+        },
+      });
+    }
   }
 
   function onError(errors, data) {
@@ -87,9 +95,10 @@ function CreateTourForm({ tourToEdit }) {
   }
 
   function handleDurationChange(e, field) {
+    if (e.target.value === '') setDuration(e.target.value);
     const duration = parseInt(e.target.value);
 
-    if (duration <= MAX_DURATION) {
+    if (duration <= MAX_DURATION && duration >= 0) {
       setDuration(parseInt(e.target.value) || 0);
       field.onChange(parseInt(e.target.value));
     }
@@ -108,7 +117,9 @@ function CreateTourForm({ tourToEdit }) {
         width: '100%',
       }}
     >
-      <StyledH1>Create new tour</StyledH1>
+      <StyledH1>
+        {isEditSession ? 'Edit tour' : 'Create new tour'}
+      </StyledH1>
 
       <StyledForm onSubmit={handleSubmit(onSubmit, onError)}>
         <CreateTourFormRow
@@ -124,6 +135,7 @@ function CreateTourForm({ tourToEdit }) {
             })}
             size="small"
             sx={{ width: '50%' }}
+            disabled={isWorking}
           />
         </CreateTourFormRow>
         <CreateTourFormRow
@@ -133,6 +145,7 @@ function CreateTourForm({ tourToEdit }) {
           errors={errors}
         >
           <DifficultyInput
+            disabled={isWorking}
             registerObj={register('difficulty', {
               required: 'This field is required',
             })}
@@ -147,6 +160,7 @@ function CreateTourForm({ tourToEdit }) {
           <TextField
             type="number"
             id="input-tour-maxGroup"
+            disabled={isWorking}
             {...register('maxGroupSize', {
               required: 'This field is required',
               min: {
@@ -167,6 +181,7 @@ function CreateTourForm({ tourToEdit }) {
         >
           <TextField
             type="number"
+            disabled={isWorking}
             id="input-tour-price"
             {...register('price', {
               required: 'This field is required',
@@ -188,6 +203,7 @@ function CreateTourForm({ tourToEdit }) {
           <Controller
             control={control}
             name="duration"
+            defaultValue={tourToEdit.duration}
             rules={{
               required: 'This field is required',
               min: {
@@ -201,7 +217,9 @@ function CreateTourForm({ tourToEdit }) {
             }}
             render={({ field }) => (
               <TextField
+                disabled={isWorking}
                 id="input-tour-duration"
+                value={duration}
                 onChange={(e) => handleDurationChange(e, field)}
                 size="small"
                 sx={{ width: '50%', maxHeight: '50px' }}
@@ -220,9 +238,15 @@ function CreateTourForm({ tourToEdit }) {
             name="startDate"
             render={({ field }) => (
               <DatePicker
+                disabled={isWorking}
                 size="small"
                 sx={{ width: '50%' }}
                 onChange={(date) => field.onChange(date)}
+                value={
+                  isEditSession
+                    ? dayjs(tourToEdit?.startDates[0])
+                    : null
+                }
                 slotProps={{ textField: { size: 'small' } }}
                 selected={field.value}
               />
@@ -240,6 +264,8 @@ function CreateTourForm({ tourToEdit }) {
             name="startLocation"
             render={({ field }) => (
               <LocationAutocompleteInput
+                disabled={isWorking}
+                defaultValue={tourToEdit.startLocation}
                 register={(e) => field.onChange(e)}
               />
             )}
@@ -253,9 +279,10 @@ function CreateTourForm({ tourToEdit }) {
           errors={errors}
         >
           <TextField
-            multiline
+            multiline={true}
             minRows={2}
             maxRows={5}
+            disabled={isWorking}
             id="input-tour-summary"
             {...register('summary', {
               required: 'This field is required',
@@ -281,6 +308,7 @@ function CreateTourForm({ tourToEdit }) {
             sx={{ width: '80%' }}
             maxRows={30}
             minRows={5}
+            disabled={isWorking}
           />
         </CreateTourFormRow>
 
@@ -293,9 +321,14 @@ function CreateTourForm({ tourToEdit }) {
           <Controller
             control={control}
             name="imageCover"
-            rules={{ required: 'This field is required' }}
+            rules={{
+              required: isEditSession
+                ? false
+                : 'This field is required',
+            }}
             render={({ field, formState }) => (
               <FileUploadInput
+                disabled={isWorking}
                 field={field}
                 formState={formState}
                 resetFn={() => resetField('imageCover')}
@@ -312,13 +345,15 @@ function CreateTourForm({ tourToEdit }) {
           <Controller
             control={control}
             name="guides"
-            defaultValue={[]}
+            defaultValue={tourToEdit.guides || []}
             render={({ field, formState }) => (
               <GuidesSelect
+                disabled={isWorking}
                 guides={guides}
                 leadGuides={leadGuides}
                 field={field}
                 formState={formState}
+                defaultValue={tourToEdit.guides}
               />
             )}
           />
@@ -334,6 +369,7 @@ function CreateTourForm({ tourToEdit }) {
             name="images"
             render={({ field, formState }) => (
               <FileUploadInput
+                disabled={isWorking}
                 field={field}
                 multiple={true}
                 formState={formState}
@@ -349,12 +385,13 @@ function CreateTourForm({ tourToEdit }) {
           name="program"
           errors={errors}
         >
-          <ProgramProvider>
+          <ProgramProvider defaultValue={tourToEdit.program}>
             <Controller
               control={control}
               name="program"
               render={({ field }) => (
                 <ProgramInput
+                  disabled={isWorking}
                   numDays={duration}
                   register={field.onChange}
                 ></ProgramInput>
@@ -374,6 +411,7 @@ function CreateTourForm({ tourToEdit }) {
             disableElevation
             size="large"
             style={{ width: '150px' }}
+            onClick={() => onClose?.()}
           >
             Cancel
           </Button>
@@ -383,9 +421,9 @@ function CreateTourForm({ tourToEdit }) {
             disableElevation
             size="large"
             style={{ width: '150px' }}
-            disabled={isCreating}
+            disabled={isWorking}
           >
-            Create tour
+            {isEditSession ? 'Save changes' : 'Create tour'}
           </Button>
         </Box>
       </StyledForm>

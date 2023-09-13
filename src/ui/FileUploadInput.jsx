@@ -17,6 +17,7 @@ const StyledInputContainer = styled('div')`
 `;
 
 function FileUploadInput({
+  disabled,
   field,
   formState,
   resetFn,
@@ -78,6 +79,7 @@ function FileUploadInput({
       }}
     >
       <Button
+        disabled={disabled}
         id={id}
         variant="outlined"
         startIcon={

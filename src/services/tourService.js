@@ -1,5 +1,6 @@
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_ADDRESS;
+const imageStorageUrl = import.meta.env.VITE_SUPABASE_IMAGES_LINK;
 
 export async function getTours() {
   const response = await axios.get(`${apiUrl}/api/v1/tours`);
@@ -24,33 +25,82 @@ export async function deleteOneTour(id) {
 }
 
 export async function createOneTour(newTour) {
-  console.log(newTour);
+  // Create a tour if doesn't exist
   const responseCreate = await axios.post(`${apiUrl}/api/v1/tours`, {
     ...newTour,
     imageCover: newTour.imageCover.name,
-    startDates: [newTour.startDate],
     images: [],
   });
-  console.log(responseCreate);
-
-  console.log(newTour.images);
   if (responseCreate.status !== 201) return responseCreate;
-  else if (newTour.imageCover) {
-    const newTourId = responseCreate.data.data.tour.id;
+  const idToUpdate = responseCreate.data.data.tour.id;
+  const responseImageUpdate = await uploadTourImages(
+    newTour.imageCover,
+    newTour.images,
+    idToUpdate
+  );
+  return responseImageUpdate;
+}
 
-    const form = new FormData();
-    form.append('imageCover', newTour.imageCover);
+export async function editOneTour(newTour, id) {
+  console.log('editing tour');
+  const form = new FormData();
 
-    if (newTour.images) {
-      for (let i = 0; i < newTour.images.length; i++) {
-        console.log(newTour.images[i]);
-        form.append('images', newTour.images[i]);
-      }
+  console.log(newTour);
+  console.log(newTour.imageCover);
+  console.log(newTour.images);
+
+  // Upload all the images via patch request
+  if (newTour.imageCover?.length > 0 || newTour.images?.length > 0) {
+    console.log(newTour.imageCover);
+    console.log(newTour.images);
+
+    const responseImageUpdate = await uploadTourImages(
+      newTour.imageCover,
+      newTour.images,
+      id
+    );
+
+    console.log(responseImageUpdate);
+  }
+
+  const responseUpdate = await axios.patch(
+    `${apiUrl}/api/v1/tours/${id}`,
+    {
+      startLocation: newTour.startLocation,
+      description: newTour.description,
+      difficulty: newTour.difficulty,
+      duration: newTour.duration,
+      maxGroupSize: newTour.maxGroupSize,
+      name: newTour.name,
+      price: newTour.price,
+      program: newTour.program,
+      startDates: newTour.startDates,
+      summary: newTour.summary,
+      guides: newTour.guides,
     }
+  );
 
-    console.log(form);
-    const responseUpdate = await axios.patch(
-      `${apiUrl}/api/v1/tours/${newTourId}`,
+  console.log(responseUpdate);
+  return responseUpdate;
+}
+
+async function uploadTourImages(imageCover, images, id) {
+  const form = new FormData();
+
+  // Upload all the images via patch request
+  if (imageCover && !imageCover.startsWith(imageStorageUrl))
+    form.append('imageCover', imageCover);
+
+  if (images) {
+    for (let i = 0; i < images.length; i++) {
+      if (!images[i].startsWith(imageStorageUrl))
+        form.append('images', images[i]);
+    }
+  }
+  // if (imageCover || images) {
+  if (form.imageCover || form.images) {
+    const responseImageUpdate = await axios.patch(
+      `${apiUrl}/api/v1/tours/${id}`,
       form,
       {
         headers: {
@@ -58,6 +108,5 @@ export async function createOneTour(newTour) {
         },
       }
     );
-    return responseUpdate;
   }
 }

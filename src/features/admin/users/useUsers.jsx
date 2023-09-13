@@ -9,7 +9,7 @@ export function useUserRole(role) {
   } = useQuery({
     queryKey: [`${role}s`],
     queryFn: () => getUserByRole(role),
-    staleTime: 20 * (60 * 1000), //5 mins
+    staleTime: 100 * (60 * 1000), //5 mins
   });
 
   return { isLoading, error, users };

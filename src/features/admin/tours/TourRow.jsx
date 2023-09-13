@@ -3,9 +3,6 @@ import {
   Box,
   Button,
   Chip,
-  IconButton,
-  Menu,
-  MenuItem,
   TableCell,
   TableRow,
   styled,
@@ -14,10 +11,10 @@ import { colors } from '../../../../theme';
 import { formatDate } from '../../../../utils/helpers';
 import { useState } from 'react';
 import TourControlMenu from '../../../ui/TourControlMenu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteOneTour } from '../../../services/tourService';
-import { toast } from 'react-hot-toast';
+
 import CreateTourForm from './CreateTourForm';
+import { useDeleteTour } from './useDeleteTour';
+import { useCreateTour } from './useCreateTour';
 
 const StyledCell = (props) => (
   <TableCell sx={{ color: colors.grey[700] }}>
@@ -31,19 +28,43 @@ function TourRow({ tour }) {
     (guide) => guide.role === 'lead-guide'
   );
 
-  const { id, name, startLocation, startDates } = tour;
+  const {
+    id,
+    name,
+    startLocation,
+    description,
+    duration,
+    difficulty,
+    maxGroupSize,
+    price,
+    program,
+    summary,
+    startDates,
+    images,
+    imageCover,
+    guides,
+  } = tour;
 
-  const queryClient = useQueryClient();
-  const { isLoading: isDeleting, mutate } = useMutation({
-    mutationFn: (id) => deleteOneTour(id),
+  const { isDeleting, mutateDelete } = useDeleteTour();
+  const { isCreating: isDuplicating, mutateCreate } = useCreateTour();
 
-    // Clearing cache to refetch the data after deletion
-    onSuccess: () => {
-      toast.success('Tour successfully deleted');
-      queryClient.invalidateQueries({ queryKey: 'tours' });
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  function handleDuplicate() {
+    mutateCreate({
+      name: `Copy of ${name}`,
+      startLocation,
+      description,
+      duration,
+      difficulty,
+      maxGroupSize,
+      price,
+      program,
+      summary,
+      startDates,
+      images,
+      imageCover,
+      guides,
+    });
+  }
 
   return (
     <>
@@ -66,8 +87,12 @@ function TourRow({ tour }) {
         <StyledCell>
           {/* <TourControlMenu></TourControlMenu> */}
           <Button onClick={() => setShowForm(!showForm)}>Edit</Button>
-          <Button onClick={() => mutate(id)}>
+          <Button onClick={() => mutateDelete(id)}>
             {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+
+          <Button onClick={handleDuplicate}>
+            {isDuplicating ? 'Duplicating...' : 'Duplicate'}
           </Button>
         </StyledCell>
       </TableRow>

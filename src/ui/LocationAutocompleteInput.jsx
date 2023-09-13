@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material/utils';
 import { clear } from 'i/lib/inflections';
+import { getFormatedLocation } from '../../utils/location';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -27,10 +28,12 @@ const autocompleteService = { current: null };
 
 // Copied from MUI docs: https://mui.com/material-ui/react-autocomplete/
 export default function LocationAutocompleteInput({
+  disabled,
   register,
   fullWidth = false,
+  defaultValue,
 }) {
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState(defaultValue || null);
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState([]);
   const loaded = useRef(false);
@@ -95,18 +98,20 @@ export default function LocationAutocompleteInput({
     };
   }, [value, inputValue, fetch]);
 
-  function handleChange(event, newValue) {
+  async function handleChange(event, newValue) {
     setOptions(newValue ? [newValue, ...options] : options);
 
     setValue(newValue);
 
     if (register) {
-      register(newValue);
+      const formattedLocation = await getFormatedLocation(newValue);
+      register(formattedLocation);
     }
   }
 
   return (
     <Autocomplete
+      disabled={disabled}
       id="google-map-demo"
       sx={{ width: `${fullWidth ? '100%' : '50%'}` }}
       size="small"
