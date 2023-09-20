@@ -17,7 +17,6 @@ import { colors } from '../../../../theme';
 import { Box, Typography } from '@mui/material';
 
 const chartColors = {
-  // totalSales: { stroke: '#4f46e5', fill: '#c7d2fe' },
   totalSales: { stroke: colors.green[700], fill: '#dcfce7' },
   text: '#374151',
   background: '#fff',

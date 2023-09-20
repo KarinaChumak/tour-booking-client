@@ -36,7 +36,6 @@ function TourTable() {
   if (filterValue === 'all') filteredTours = tours;
   if (filterValue === 'published') {
     filteredTours = tours.filter((tour) => tour.published === true);
-    console.log(tours);
   }
   if (filterValue === 'unpublished')
     filteredTours = tours.filter((tour) => tour.published === false);

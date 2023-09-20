@@ -5,7 +5,6 @@ import { useMoveBack } from '../../../hooks/useMoveBack';
 import { useDeleteBooking } from './useDeleteBooking';
 
 export function BookingDetailsActions({ bookingId }) {
-  console.log(bookingId);
   const { isDeleting, mutateDelete } = useDeleteBooking();
 
   const moveBack = useMoveBack();

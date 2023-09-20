@@ -32,7 +32,6 @@ export async function getAllUsers({ filter, sortBy, page }) {
     },
   });
 
-  console.log(response);
   return response.data;
 }
 
@@ -86,7 +85,6 @@ export async function updateMe(newData) {
     newData.photo &&
     !newData.photo?.startsWith?.(imageStorageUrl)
   ) {
-    console.log(newData.photo);
     form.append('photo', newData.photo);
   }
 

@@ -15,7 +15,6 @@ export async function getOneTour(slug) {
   const response = await axios.get(
     `${apiUrl}/api/v1/tours/tour/${slug}`
   );
-  console.log(response);
 
   return response.data.data.tour;
 }
@@ -43,9 +42,7 @@ export async function createOneTour(newTour) {
   );
   if (responseCreate.status !== 201) return responseCreate;
 
-  console.log(responseCreate.data.data.id);
   const idToUpdate = responseCreate.data.data.id;
-  console.log('uploading images now...');
 
   const responseImageUpdate = await uploadTourImages(
     newTour.imageCover,
@@ -53,7 +50,6 @@ export async function createOneTour(newTour) {
     idToUpdate
   );
 
-  console.log(responseImageUpdate);
   return responseImageUpdate;
 }
 
@@ -66,7 +62,7 @@ export async function editOneTour(newTour, id) {
       id
     );
 
-    console.log(responseImageUpdate);
+    return responseImageUpdate;
   }
 
   const responseUpdate = await axios.patch(

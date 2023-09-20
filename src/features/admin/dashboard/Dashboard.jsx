@@ -20,7 +20,6 @@ function Dashboard() {
     (tour) => tour.ratingsQuantity > 0
   );
 
-  console.log(toursWithReviews);
   const avgRating =
     toursWithReviews?.reduce(
       (acc, val) => (acc += val.ratingsAverage),

@@ -15,7 +15,5 @@ export function useBooking() {
     staleTime: 5 * (60 * 1000), //5 mins
   });
 
-  console.log(booking);
-
   return { isLoading, error, booking };
 }

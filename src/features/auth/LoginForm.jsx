@@ -24,7 +24,6 @@ function LoginForm() {
   const { login, isLoading } = useLogin();
 
   function handleLogin(e) {
-    console.log({ email, password });
     e.preventDefault();
     login({ email, password });
   }
@@ -75,7 +74,6 @@ function LoginForm() {
           disabled={isLoading}
           value={password}
           onChange={(e) => {
-            console.log(e?.target?.value);
             setPassword(e?.target?.value || '');
           }}
           style={{ width: '100%' }}
