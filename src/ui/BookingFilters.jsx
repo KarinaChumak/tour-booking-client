@@ -56,7 +56,7 @@ function BookingFilters({ width = '200px' }) {
         {tours?.map?.((option, i) => (
           <MenuItem
             key={i}
-            value={option.id}
+            value={option?.id}
             sx={{ fontSize: '0.7rem' }}
           >
             {`${option?.name}– ${formatDate(

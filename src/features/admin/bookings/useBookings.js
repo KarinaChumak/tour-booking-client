@@ -70,14 +70,14 @@ export function useUniqueBookingTours() {
   });
 
   const uniqueTours = removeDuplicates(
-    bookings?.map((booking) => booking.tour)
+    bookings?.map((booking) => booking?.tour)
   );
   return { isLoading, error, tours: uniqueTours };
 }
 
 function removeDuplicates(arr) {
   let unique = arr?.reduce(function (acc, curr) {
-    if (!acc.map((i) => i.id).includes(curr.id)) acc.push(curr);
+    if (!acc.map((i) => i?.id).includes(curr?.id)) acc.push(curr);
     return acc;
   }, []);
   return unique;

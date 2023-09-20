@@ -25,34 +25,16 @@ const StyledCell = (props) => (
   </TableCell>
 );
 
+const roleColors = {
+  user: { color: colors.yellow[100], label: 'User' },
+  'lead-guide': { color: colors.green[100], label: 'Lead guide' },
+  guide: { color: colors.lightGreen[200], label: 'Guide' },
+  admin: { color: colors.green[200], label: 'Admin' },
+};
 function UserRow({ user }) {
   const { _id: id, name, photo, email, role, active } = user;
 
-  // const { isEditing, mutateEdit } = useEditTour();
   const { isDeleting, mutateDelete } = useDeleteUser();
-  // const { isCreating: isDuplicating, mutateCreate } = useCreateTour();
-
-  // function handleDuplicate() {
-  //   mutateCreate({
-  //     name: `Copy of ${name}`,
-  //     startLocation,
-  //     description,
-  //     duration,
-  //     difficulty,
-  //     maxGroupSize,
-  //     price,
-  //     program,
-  //     summary,
-  //     startDates,
-  //     images,
-  //     imageCover,
-  //     guides,
-  //   });
-  // }
-
-  // function handleChangePublished(editId, published) {
-  //   mutateEdit({ newData: { published }, editId });
-  // }
 
   return (
     <TableRow
@@ -65,7 +47,15 @@ function UserRow({ user }) {
       </StyledCell>
       <StyledCell>{user?.name}</StyledCell>
       <StyledCell>{user?.email}</StyledCell>
-      <StyledCell>{user?.role}</StyledCell>
+      <StyledCell>
+        <Chip
+          label={roleColors[user?.role]?.label}
+          style={{
+            backgroundColor: roleColors[user?.role]?.color,
+            padding: '1rem 3px',
+          }}
+        ></Chip>
+      </StyledCell>
       <StyledCell>{user?.phone}</StyledCell>
       <StyledCell>
         <Modal>
