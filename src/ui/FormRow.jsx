@@ -1,5 +1,5 @@
 import { styled } from '@mui/system';
-import { colors } from '../../../../theme';
+import { colors } from '../../theme';
 import {
   Button,
   Divider,
@@ -29,16 +29,10 @@ const StyledError = styled('p')`
   border-radius: 10px;
   font-size: 0.8rem;
 `;
-function CreateTourFormRow({
-  name,
-  label,
-  required,
-  errors,
-  children,
-}) {
+function FormRow({ name, label, required, errors = {}, children }) {
   return (
     <>
-      <StyledInputLabel htmlFor={`input-tour-${name}`}>
+      <StyledInputLabel htmlFor={`input-${name}`}>
         {label}
         {required && <sup>*</sup>}
       </StyledInputLabel>
@@ -59,4 +53,4 @@ function CreateTourFormRow({
   );
 }
 
-export default CreateTourFormRow;
+export default FormRow;

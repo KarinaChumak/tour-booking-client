@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material/utils';
 import { clear } from 'i/lib/inflections';
-import { getFormatedLocation } from '../../utils/location';
+import { getFormatedLocation } from '../utils/location';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 

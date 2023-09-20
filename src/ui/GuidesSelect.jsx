@@ -11,10 +11,6 @@ import { useEffect, useState } from 'react';
 import { styled } from '@mui/system';
 import { Controller } from 'react-hook-form';
 
-const StyledGuideItem = styled(MenuItem)`
-  gap: 10px;
-`;
-
 function GuidesSelect({
   disabled,
   leadGuides,
@@ -45,7 +41,9 @@ function GuidesSelect({
   };
 
   function getGuideById(id) {
-    return [...leadGuides, ...guides].find((item) => item._id === id);
+    return [...(leadGuides || []), ...(guides || [])]?.find(
+      (item) => item._id === id
+    );
   }
 
   return (
@@ -59,14 +57,15 @@ function GuidesSelect({
       sx={{
         width: '80%',
       }}
+      MenuProps={{ keepMounted: true, disablePortal: true }}
       renderValue={(selected) => (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           {selected.map((value) => (
             <Chip
               key={value}
-              label={getGuideById(value).name}
+              label={getGuideById(value)?.name}
               avatar={
-                <Avatar src={getGuideById(value).photo}></Avatar>
+                <Avatar src={getGuideById(value)?.photo}></Avatar>
               }
             />
           ))}
@@ -74,7 +73,7 @@ function GuidesSelect({
       )}
     >
       <ListSubheader>Lead guides</ListSubheader>
-      {leadGuides?.map((guide) => (
+      {leadGuides?.map?.((guide) => (
         <MenuItem
           key={guide._id}
           sx={{ gap: '10px' }}
@@ -89,7 +88,7 @@ function GuidesSelect({
       ))}
 
       <ListSubheader>Guides</ListSubheader>
-      {guides?.map((guide) => (
+      {guides?.map?.((guide) => (
         <MenuItem
           key={guide._id}
           sx={{ gap: '10px' }}

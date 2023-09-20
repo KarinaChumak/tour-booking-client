@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import {
   Avatar,
   Box,
@@ -8,13 +10,18 @@ import {
   styled,
 } from '@mui/material';
 import { colors } from '../../../../theme';
-import { formatDate } from '../../../../utils/helpers';
-import { useState } from 'react';
-import TourControlMenu from '../../../ui/TourControlMenu';
 
-import CreateTourForm from './CreateTourForm';
+import { formatDate } from '../../../utils/helpers';
+
+import TourControlMenu from './TourControlMenu';
 import { useDeleteTour } from './useDeleteTour';
 import { useCreateTour } from './useCreateTour';
+
+import CreateTourForm from './CreateTourForm';
+import Modal from '../../../ui/CustomModal';
+import ConfirmDelete from '../../../ui/ConfirmDelete';
+import { useEditTour } from './useEditTour';
+import ConfirmPublish from '../../../ui/ConfirmPublish';
 
 const StyledCell = (props) => (
   <TableCell sx={{ color: colors.grey[700] }}>
@@ -23,7 +30,6 @@ const StyledCell = (props) => (
 );
 
 function TourRow({ tour }) {
-  const [showForm, setShowForm] = useState(false);
   const leadGuide = tour.guides.find(
     (guide) => guide.role === 'lead-guide'
   );
@@ -43,8 +49,11 @@ function TourRow({ tour }) {
     images,
     imageCover,
     guides,
+    published,
+    numPeopleBooked,
   } = tour;
 
+  const { isEditing, mutateEdit } = useEditTour();
   const { isDeleting, mutateDelete } = useDeleteTour();
   const { isCreating: isDuplicating, mutateCreate } = useCreateTour();
 
@@ -66,44 +75,76 @@ function TourRow({ tour }) {
     });
   }
 
+  function handleChangePublished(editId, published) {
+    mutateEdit({ newData: { published }, editId });
+  }
+
   return (
-    <>
-      <TableRow sx={{ color: colors.green[400] }}>
-        <StyledCell>{name}</StyledCell>
+    <TableRow
+      sx={{
+        color: colors.green[400],
+        backgroundColor: `${
+          published ? colors.white[100] : colors.grey[100]
+        }`,
+      }}
+    >
+      <StyledCell>{name}</StyledCell>
 
-        {/* TODO: change API to return obly a single start date */}
-        <StyledCell>{formatDate(startDates[0])}</StyledCell>
-        <StyledCell>{startLocation.description}</StyledCell>
-        <StyledCell>
-          <Box display="flex" gap="1rem" alignItems="center">
-            <Avatar src={leadGuide?.photo}></Avatar>
-            {leadGuide?.name || 'No guide assigned yet'}
-          </Box>
-        </StyledCell>
-        <StyledCell>People booked</StyledCell>
-        <StyledCell>
-          <Chip label="Booked" color="primary"></Chip>
-        </StyledCell>
-        <StyledCell>
-          {/* <TourControlMenu></TourControlMenu> */}
-          <Button onClick={() => setShowForm(!showForm)}>Edit</Button>
-          <Button onClick={() => mutateDelete(id)}>
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </Button>
+      {/* TODO: change API to return obly a single start date */}
+      <StyledCell>{formatDate(startDates[0])}</StyledCell>
+      <StyledCell>{startLocation.description}</StyledCell>
+      <StyledCell>
+        <Box display="flex" gap="1rem" alignItems="center">
+          <Avatar src={leadGuide?.photo}></Avatar>
+          {leadGuide?.name || 'No guide assigned yet'}
+        </Box>
+      </StyledCell>
+      <StyledCell>{`${numPeopleBooked}/${maxGroupSize}`}</StyledCell>
+      <StyledCell>
+        <Chip
+          label={
+            numPeopleBooked == maxGroupSize
+              ? 'Sold out'
+              : published
+              ? 'Selling'
+              : 'Unpublished'
+          }
+          color={
+            numPeopleBooked == maxGroupSize
+              ? 'primary'
+              : published
+              ? 'secondary'
+              : 'warning'
+          }
+        ></Chip>
+      </StyledCell>
+      <StyledCell>
+        <Modal>
+          <TourControlMenu
+            published={published}
+            onDuplicate={handleDuplicate}
+            onUnpublish={() => handleChangePublished(id, false)}
+          ></TourControlMenu>
 
-          <Button onClick={handleDuplicate}>
-            {isDuplicating ? 'Duplicating...' : 'Duplicate'}
-          </Button>
-        </StyledCell>
-      </TableRow>
-      {showForm && (
-        <TableRow>
-          <TableCell colSpan={7}>
-            <CreateTourForm tourToEdit={tour}></CreateTourForm>
-          </TableCell>
-        </TableRow>
-      )}
-    </>
+          <Modal.Window name="deleteTour" type={'small'}>
+            <ConfirmDelete
+              entity={'tour'}
+              onConfirm={() => mutateDelete(id)}
+            ></ConfirmDelete>
+          </Modal.Window>
+
+          <Modal.Window name="publish" type={'small'}>
+            <ConfirmPublish
+              onConfirm={() => handleChangePublished(id, true)}
+            ></ConfirmPublish>
+          </Modal.Window>
+
+          <Modal.Window name="editTour">
+            <CreateTourForm tourToEdit={tour} />
+          </Modal.Window>
+        </Modal>
+      </StyledCell>
+    </TableRow>
   );
 }
 

@@ -1,11 +1,18 @@
+import { Box } from '@mui/material';
 import BookingTable from '../../features/admin/bookings/BookingTable';
+import { useBookings } from '../../features/admin/bookings/useBookings';
+import BookingTableOperations from '../../features/admin/bookings/BookingTableOperations';
 
 function AdminBookings() {
   return (
-    <div>
-      <h1>All bookings</h1>
+    <Box display={'flex'} flexDirection={'column'} gap={'1.2rem'}>
+      <Box display={'flex'} justifyContent={'space-between'}>
+        <h1>All bookings</h1>
+        <BookingTableOperations></BookingTableOperations>
+      </Box>
       <BookingTable></BookingTable>
-    </div>
+      {/* <AddUser></AddUser> */}
+    </Box>
   );
 }
 

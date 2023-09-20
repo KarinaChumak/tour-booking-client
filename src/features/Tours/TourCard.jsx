@@ -15,7 +15,7 @@ import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
 import FmdGoodTwoToneIcon from '@mui/icons-material/FmdGoodTwoTone';
 import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone';
 import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
-import { formatDate } from '../../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
 
 const OverlayedText = styled('h2')`
   position: absolute;
@@ -60,7 +60,7 @@ const Feature = styled('div')`
   text-align: left;
 `;
 
-function TourCard({ tour }) {
+function TourCard({ tour, showActions = true }) {
   return (
     <Card
       sx={{
@@ -79,18 +79,18 @@ function TourCard({ tour }) {
           to bottom right,
           rgba(0, 0, 0, 0.341),
           rgba(0, 80, 80, 0.4)
-        ),  url(${tour.imageCover})`,
+        ),  url(${tour?.imageCover})`,
         }}
         title="tour cover"
       />
 
-      <OverlayedText>{tour.name}</OverlayedText>
+      <OverlayedText>{tour?.name}</OverlayedText>
       <CardContent>
         <Box p={2} display={'flex'} flexDirection={'column'} gap={2}>
           <Heading>
-            {tour.difficulty} {tour.duration}-day tour
+            {tour?.difficulty} {tour?.duration}-day tour
           </Heading>
-          <Paragraph>{tour.summary}</Paragraph>
+          <Paragraph>{tour?.summary}</Paragraph>
           <Grid
             container
             gap={2}
@@ -104,7 +104,7 @@ function TourCard({ tour }) {
                   color="primary"
                   fontSize="large"
                 ></FmdGoodTwoToneIcon>
-                <span> {tour.startLocation.description}</span>
+                <span> {tour?.startLocation.description}</span>
               </Feature>
             </Grid>
             <Grid item>
@@ -115,7 +115,7 @@ function TourCard({ tour }) {
                 ></CalendarMonthTwoToneIcon>
                 <span>
                   {/* TODO: StartDate -> will be a single value, not an array */}
-                  {formatDate(tour.startDates[0])}
+                  {formatDate(tour?.startDates[0])}
                 </span>
               </Feature>
             </Grid>
@@ -127,8 +127,8 @@ function TourCard({ tour }) {
                 ></FlagTwoToneIcon>
                 <span>
                   {' '}
-                  {`${tour.locations.length} ${
-                    tour.locations.length > 1 ? 'stops' : 'stop'
+                  {`${tour?.program?.length} ${
+                    tour?.program?.length > 1 ? 'stops' : 'stop'
                   }`}
                 </span>
               </Feature>
@@ -139,52 +139,54 @@ function TourCard({ tour }) {
                   color="primary"
                   fontSize="large"
                 ></PeopleAltTwoToneIcon>
-                <span>{`${tour.maxGroupSize} people`}</span>
+                <span>{`${tour?.maxGroupSize} people`}</span>
               </Feature>
             </Grid>
           </Grid>
         </Box>
       </CardContent>
-      <CardActions
-        sx={{
-          backgroundColor: '#f4fde5',
-          marginBottom: '0px',
-        }}
-      >
-        <Box
-          py={2}
-          px={3}
-          display={'flex'}
-          justifyContent={'space-between'}
-          width={'100%'}
+      {showActions && (
+        <CardActions
+          sx={{
+            backgroundColor: '#f4fde5',
+            marginBottom: '0px',
+          }}
         >
-          <Box>
-            <Paragraph>
-              <Bold>${tour.price}</Bold>
-              <span>per person</span>
-            </Paragraph>
-            <Paragraph>
-              <Bold>{tour.ratingsAverage}</Bold>
-              <span>rating (${tour.ratingsQuantity})</span>
-            </Paragraph>
-          </Box>
-
-          <Button
-            color="primary"
-            variant="contained"
-            disableElevation
-            style={{
-              minWidth: '120px',
-              fontSize: '1rem',
-              fontWeight: 700,
-            }}
-            LinkComponent={Link}
-            to={`/tour/${tour.slug}`}
+          <Box
+            py={2}
+            px={3}
+            display={'flex'}
+            justifyContent={'space-between'}
+            width={'100%'}
           >
-            DETAILS
-          </Button>
-        </Box>
-      </CardActions>
+            <Box>
+              <Paragraph>
+                <Bold>${tour?.price}</Bold>
+                <span>per person</span>
+              </Paragraph>
+              <Paragraph>
+                <Bold>{tour?.ratingsAverage}</Bold>
+                <span>rating (${tour?.ratingsQuantity})</span>
+              </Paragraph>
+            </Box>
+
+            <Button
+              color="primary"
+              variant="contained"
+              disableElevation
+              style={{
+                minWidth: '120px',
+                fontSize: '1rem',
+                fontWeight: 700,
+              }}
+              LinkComponent={Link}
+              to={`/tour/${tour?.slug}`}
+            >
+              DETAILS
+            </Button>
+          </Box>
+        </CardActions>
+      )}
     </Card>
   );
 }

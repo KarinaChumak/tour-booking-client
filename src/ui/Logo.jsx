@@ -2,11 +2,7 @@ import { colors } from '../../theme';
 import { Avatar, styled } from '@mui/material';
 
 function Logo() {
-  return (
-    <Avatar sx={{ padding: '3rem', bgcolor: colors.green[600] }}>
-      <img width={'100px'} src="logo.svg"></img>
-    </Avatar>
-  );
+  return <img width={'200px'} src="/logo-new.svg"></img>;
 }
 
 export default Logo;

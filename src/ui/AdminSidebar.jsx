@@ -16,8 +16,8 @@ function AdminSidebar() {
       display="flex"
       flexDirection="column"
       alignItems="center"
-      paddingTop={'6rem'}
       gap={'2rem'}
+      paddingTop={'2rem'}
     >
       <Logo></Logo>
       <AdminNav></AdminNav>

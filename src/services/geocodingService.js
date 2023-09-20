@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const apiUrl = import.meta.env.VITE_API_ADDRESS;
 
 export default async function getGeocoding(placeId) {

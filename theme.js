@@ -13,7 +13,7 @@ export const colors = {
     900: '#002828',
   },
   green: {
-    100: '#cdeae1',
+    100: '#f0fdf4',
     200: '#9bd5c3',
     300: '#69c0a5',
     400: '#37ab87',
@@ -52,12 +52,20 @@ export const colors = {
     400: '#d1f699',
     500: '#c6f47f',
     600: '#97CD46',
-    700: '#77924c',
-    800: '#4f6233',
+    700: '#15803d',
+    800: '#77924c',
     900: '#283119',
   },
   white: {
     100: '#fff',
+  },
+  yellow: {
+    100: '#fef9c3',
+    700: '#a16207',
+  },
+  indigo: {
+    100: '#e0e7ff',
+    700: '#4338ca',
   },
 };
 
@@ -69,11 +77,16 @@ export const theme = createTheme({
       dark: colors.blue[900],
     },
     secondary: {
-      light: colors.lightGreen[200],
-      main: colors.lightGreen[500],
+      light: colors.lightGreen[300],
+      main: colors.lightGreen[400],
       dark: colors.lightGreen[600],
     },
 
+    warning: {
+      light: colors.red[100],
+      main: colors.red[100],
+      dark: colors.red[300],
+    },
     background: {
       light: colors.grey[200],
       main: colors.grey[300],

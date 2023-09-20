@@ -1,14 +1,13 @@
-import { MenuItem, TextField } from '@mui/material';
+import { MenuItem, Select, TextField } from '@mui/material';
 
-function DifficultyInput({ disabled, registerObj }) {
+function DifficultyInput({ disabled, field }) {
   return (
-    <TextField
-      select
+    <Select
       disabled={disabled}
       id="input-tour-difficulty"
-      {...registerObj}
       size="small"
-      defaultValue={'easy'}
+      defaultValue={field.value}
+      onChange={field.onChange}
       sx={{
         width: '50%',
         maxHeight: '50px',
@@ -18,7 +17,7 @@ function DifficultyInput({ disabled, registerObj }) {
       <MenuItem value={'easy'}>easy</MenuItem>
       <MenuItem value={'medium'}>medium</MenuItem>
       <MenuItem value={'difficult'}>difficult</MenuItem>
-    </TextField>
+    </Select>
   );
 }
 

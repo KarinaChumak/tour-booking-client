@@ -8,19 +8,39 @@ import AdminBookings from '../pages/admin/AdminBookings';
 import AdminTours from '../pages/admin/adminTours';
 import AdminUsers from '../pages/admin/adminUsers';
 
+import AdminBookingDetails from '../pages/admin/AdminBookingDetails';
+import ProtectedRoute from '../ui/ProtectedRoute';
+import AdminLoginPage from '../pages/admin/AdminLoginPage';
+import AdminAccount from '../pages/admin/AdminAccount';
+import AdminDashboard from '../pages/admin/AdminDashboard';
+
 function AdminRouter() {
   return (
     <Routes>
-      <Route element={<AdminLayout></AdminLayout>}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AdminLayout></AdminLayout>
+          </ProtectedRoute>
+        }
+      >
         <Route
           index
           element={<Navigate replace to="dashboard"></Navigate>}
         ></Route>
-        <Route path="dashboard" element={<p></p>}></Route>
+        <Route
+          path="dashboard"
+          element={<AdminDashboard></AdminDashboard>}
+        ></Route>
+        <Route
+          path="bookings/:bookingId"
+          element={<AdminBookingDetails></AdminBookingDetails>}
+        ></Route>
         <Route
           path="bookings"
           element={<AdminBookings></AdminBookings>}
         ></Route>
+
         <Route
           path="tours"
           element={<AdminTours></AdminTours>}
@@ -31,8 +51,15 @@ function AdminRouter() {
           element={<AdminUsers></AdminUsers>}
         ></Route>
 
+        <Route path="account" element={<AdminAccount />}></Route>
+
         <Route path="*" element={<NotFound></NotFound>}></Route>
       </Route>
+
+      <Route
+        path="login"
+        element={<AdminLoginPage></AdminLoginPage>}
+      ></Route>
     </Routes>
   );
 }

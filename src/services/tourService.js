@@ -1,11 +1,14 @@
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_ADDRESS;
 const imageStorageUrl = import.meta.env.VITE_SUPABASE_IMAGES_LINK;
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
+const token = cookies.get('jwt');
 
 export async function getTours() {
   const response = await axios.get(`${apiUrl}/api/v1/tours`);
 
-  return response.data.data.documents;
+  return response.data.data;
 }
 
 export async function getOneTour(slug) {
@@ -19,41 +22,44 @@ export async function getOneTour(slug) {
 
 export async function deleteOneTour(id) {
   const response = await axios.delete(`${apiUrl}/api/v1/tours/${id}`);
-  console.log(response);
 
   return response;
 }
 
 export async function createOneTour(newTour) {
   // Create a tour if doesn't exist
-  const responseCreate = await axios.post(`${apiUrl}/api/v1/tours`, {
-    ...newTour,
-    imageCover: newTour.imageCover.name,
-    images: [],
-  });
+  const responseCreate = await axios.post(
+    `${apiUrl}/api/v1/tours`,
+    {
+      ...newTour,
+      imageCover: newTour.imageCover.name,
+      images: [],
+    },
+    {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    }
+  );
   if (responseCreate.status !== 201) return responseCreate;
-  const idToUpdate = responseCreate.data.data.tour.id;
+
+  console.log(responseCreate.data.data.id);
+  const idToUpdate = responseCreate.data.data.id;
+  console.log('uploading images now...');
+
   const responseImageUpdate = await uploadTourImages(
     newTour.imageCover,
     newTour.images,
     idToUpdate
   );
+
+  console.log(responseImageUpdate);
   return responseImageUpdate;
 }
 
 export async function editOneTour(newTour, id) {
-  console.log('editing tour');
-  const form = new FormData();
-
-  console.log(newTour);
-  console.log(newTour.imageCover);
-  console.log(newTour.images);
-
   // Upload all the images via patch request
   if (newTour.imageCover?.length > 0 || newTour.images?.length > 0) {
-    console.log(newTour.imageCover);
-    console.log(newTour.images);
-
     const responseImageUpdate = await uploadTourImages(
       newTour.imageCover,
       newTour.images,
@@ -77,10 +83,15 @@ export async function editOneTour(newTour, id) {
       startDates: newTour.startDates,
       summary: newTour.summary,
       guides: newTour.guides,
+      published: newTour.published || false,
+    },
+    {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
     }
   );
 
-  console.log(responseUpdate);
   return responseUpdate;
 }
 
@@ -88,23 +99,24 @@ async function uploadTourImages(imageCover, images, id) {
   const form = new FormData();
 
   // Upload all the images via patch request
-  if (imageCover && !imageCover.startsWith(imageStorageUrl))
+  if (imageCover && !imageCover?.startsWith?.(imageStorageUrl))
     form.append('imageCover', imageCover);
 
   if (images) {
     for (let i = 0; i < images.length; i++) {
-      if (!images[i].startsWith(imageStorageUrl))
+      if (!images[i]?.startsWith?.(imageStorageUrl))
         form.append('images', images[i]);
     }
   }
-  // if (imageCover || images) {
-  if (form.imageCover || form.images) {
+
+  if (form.get('imageCover') || form.get('images')) {
     const responseImageUpdate = await axios.patch(
       `${apiUrl}/api/v1/tours/${id}`,
       form,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: 'Bearer ' + token,
         },
       }
     );

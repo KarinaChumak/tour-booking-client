@@ -1,4 +1,4 @@
-import getGeocoding from '../src/services/geocodingService';
+import getGeocoding from '../services/geocodingService';
 
 export async function getFormatedLocation(startLocation) {
   console.log(startLocation);

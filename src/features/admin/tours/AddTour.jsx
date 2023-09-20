@@ -1,30 +1,26 @@
 import { useState } from 'react';
 
 import { Button } from '@mui/material';
-import Modal from '../../../ui/Modal';
+import Modal from '../../../ui/CustomModal';
 import CreateTourForm from './CreateTourForm';
 
 function AddTour() {
-  const [showForm, setShowForm] = useState(true);
-
   return (
-    <div>
-      <Button
-        variant="contained"
-        disableElevation
-        size="large"
-        onClick={() => setShowForm((show) => !show)}
-        style={{ maxWidth: '200px' }}
-      >
-        Add new tour
-      </Button>
-      {/* {showForm && <CreateTourForm></CreateTourForm>} */}
-      {showForm && (
-        <Modal onClose={() => setShowForm(false)}>
-          <CreateTourForm onClose={() => setShowForm(false)} />
-        </Modal>
-      )}
-    </div>
+    <Modal>
+      <Modal.Open opens="tour-form">
+        <Button
+          variant="contained"
+          disableElevation
+          size="large"
+          style={{ maxWidth: '200px' }}
+        >
+          Add new tour
+        </Button>
+      </Modal.Open>
+      <Modal.Window name="tour-form" type={'big'}>
+        <CreateTourForm></CreateTourForm>
+      </Modal.Window>
+    </Modal>
   );
 }
 
