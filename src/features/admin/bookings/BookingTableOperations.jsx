@@ -17,11 +17,11 @@ function BookingOperations() {
         options={[
           {
             value: 'createdAt-asc',
-            label: 'Sort by date (new first)',
+            label: 'Sort by date (newest first)',
           },
           {
             value: 'createdAt-desc',
-            label: 'Sort by date (old first)',
+            label: 'Sort by date (oldest first)',
           },
         ]}
       ></SortBy>

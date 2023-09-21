@@ -21,11 +21,11 @@ function TourOperations() {
         options={[
           {
             value: 'createdAt-asc',
-            label: 'Sort by date (new first)',
+            label: 'Sort by date (newest first)',
           },
           {
             value: 'createdAt-desc',
-            label: 'Sort by date (old first)',
+            label: 'Sort by date (oldest first)',
           },
           { value: 'name-asc', label: 'Sort by name (A-Z)' },
           { value: 'name-desc', label: 'Sort by name (Z-A)' },

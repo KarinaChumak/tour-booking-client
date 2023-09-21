@@ -55,8 +55,11 @@ function FileUploadInput({
 
   const onChangeAggregated = (e) => {
     if (e.target.files && e.target.files.length > 0) {
+      console.log(selectedFiles);
+      console.log(e.target.files);
+
       setSelectedFiles((selectedFiles) => [
-        ...selectedFiles,
+        ...(multiple ? selectedFiles : []),
         ...Object.values(e.target.files),
       ]);
     }
@@ -76,6 +79,7 @@ function FileUploadInput({
     <StyledInputContainer
       style={{
         flexDirection: `${multiple ? 'column' : 'row'}`,
+        alignItems: `${multiple ? 'start' : 'center'}`,
       }}
     >
       <Button
@@ -92,7 +96,9 @@ function FileUploadInput({
           ? selectedFiles.length === 0
             ? 'Select files'
             : 'Add more files'
-          : 'Select 1 file'}
+          : selectedFiles.length === 0
+          ? 'Select file'
+          : 'Change file'}
       </Button>
 
       <input
@@ -105,7 +111,7 @@ function FileUploadInput({
       />
 
       <PreviewContainer>
-        {selectedFiles.length > 0
+        {selectedFiles?.length > 0
           ? selectedFiles?.map((file) => (
               <ImagePreview
                 key={file.name}

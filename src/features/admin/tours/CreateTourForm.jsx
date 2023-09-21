@@ -110,6 +110,10 @@ function CreateTourForm({ onClose, tourToEdit = {} }) {
           id="input-tour-name"
           {...register('name', {
             required: 'This field is required',
+            minLength: {
+              value: 10,
+              message: 'A tour name should have at least 10 symbols',
+            },
           })}
           size="small"
           sx={{ width: '50%' }}
@@ -238,11 +242,15 @@ function CreateTourForm({ onClose, tourToEdit = {} }) {
       <FormRow
         label="Start location"
         name="startLocation"
+        required={true}
         errors={errors}
       >
         <Controller
           control={control}
           name="startLocation"
+          rules={{
+            required: 'This field is required',
+          }}
           render={({ field }) => (
             <LocationAutocompleteInput
               disabled={isWorking}
