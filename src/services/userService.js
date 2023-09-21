@@ -4,15 +4,13 @@ const imageStorageUrl = import.meta.env.VITE_SUPABASE_IMAGES_LINK;
 import { PAGE_SIZE } from '../utils/constants';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
-const token = cookies.get('jwt');
 
 export async function getUserByRole(role) {
-  console.log(token);
   const response = await axios.get(
     `${apiUrl}/api/v1/users?role=${role}`,
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
@@ -29,7 +27,7 @@ export async function getAllUsers({ filter, sortBy, page }) {
 
   const response = await axios.get(queryStr, {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + cookies.get('jwt'),
     },
   });
 
@@ -53,7 +51,7 @@ export async function createOneUser(newUser) {
     },
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
@@ -71,7 +69,7 @@ export async function editOneUser(newUser, id) {
     },
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
@@ -99,7 +97,7 @@ export async function updateMe(newData) {
     {
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );

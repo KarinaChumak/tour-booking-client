@@ -3,7 +3,6 @@ const apiUrl = import.meta.env.VITE_API_ADDRESS;
 const imageStorageUrl = import.meta.env.VITE_SUPABASE_IMAGES_LINK;
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
-const token = cookies.get('jwt');
 
 export async function getTours() {
   const response = await axios.get(`${apiUrl}/api/v1/tours`);
@@ -36,7 +35,7 @@ export async function createOneTour(newTour) {
     },
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
@@ -83,7 +82,7 @@ export async function editOneTour(newTour, id) {
     },
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
@@ -112,7 +111,7 @@ async function uploadTourImages(imageCover, images, id) {
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: 'Bearer ' + token,
+          Authorization: 'Bearer ' + cookies.get('jwt'),
         },
       }
     );

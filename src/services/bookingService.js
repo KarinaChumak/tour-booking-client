@@ -5,7 +5,6 @@ import { PAGE_SIZE } from '../utils/constants';
 
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
-const token = cookies.get('jwt');
 
 export async function getBookings({ filter, sortBy, page }) {
   let queryStr = `${apiUrl}/api/v1/booking?`;

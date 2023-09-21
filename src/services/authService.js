@@ -2,19 +2,14 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
-const token = cookies.get('jwt');
-
 const apiUrl = import.meta.env.VITE_API_ADDRESS;
 
 export async function getCurrentUser() {
-  // const jwt =
-  //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk5ZTg2MjY2ZGQ2MmE0MzQ5MWVkNCIsImlhdCI6MTY5NTEyOTIyNSwiZXhwIjoxNzAyOTA1MjI1fQ.V59AsSgYNeyLnh-RjXDvQPbM3hPDVhYN_u20Ap9veNE';
-
   let response;
-  if (token) {
+  if (cookies?.get('jwt')) {
     response = await axios.get(`${apiUrl}/api/v1/users/me`, {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     });
 
@@ -55,13 +50,13 @@ export async function updatePassword(data) {
     data,
     {
       headers: {
-        Authorization: 'Bearer ' + token,
+        Authorization: 'Bearer ' + cookies.get('jwt'),
       },
     }
   );
 
   if (response.data.status === 'success') {
-    cookies.set('jwt', response.data.token, {
+    cookies.set('jwt', response.data.cookies.get('jwt'), {
       path: '/',
     });
     return response;
