@@ -49,9 +49,9 @@ function UserRow({ user }) {
       <StyledCell>{user?.email}</StyledCell>
       <StyledCell>
         <Chip
-          label={roleColors[user?.role]?.label}
+          label={roleColors[user?.role]?.label || ''}
           style={{
-            backgroundColor: roleColors[user?.role]?.color,
+            backgroundColor: roleColors[user?.role]?.color || '#fff',
             padding: '1rem 3px',
           }}
         ></Chip>

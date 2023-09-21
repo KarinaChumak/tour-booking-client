@@ -26,16 +26,14 @@ const appMode = import.meta.env.VITE_APP_MODE;
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    // queries: { staleTime: 60 * 1000 },
-
-    queries: { staleTime: 0 },
+    queries: { staleTime: 60 * 1000 },
   },
 });
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <ThemeProvider theme={theme}>
           <CssBaseline></CssBaseline>

@@ -41,6 +41,7 @@ function Dashboard() {
       {/* <Box display="flex" justifyContent="space-between">
         <div>sales plot</div>
       </Box> */}
+
       <SalesChart bookings={bookings} numDays={numDays}></SalesChart>
     </Box>
   );

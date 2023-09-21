@@ -7,6 +7,7 @@ const cookies = new Cookies();
 const token = cookies.get('jwt');
 
 export async function getUserByRole(role) {
+  console.log(token);
   const response = await axios.get(
     `${apiUrl}/api/v1/users?role=${role}`,
     {

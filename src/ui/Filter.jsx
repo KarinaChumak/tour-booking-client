@@ -38,9 +38,9 @@ function Filter({ filteredField, options }) {
       {options.map((option, i) => (
         <StyledButton
           key={i}
-          active={currentFilter == option.value}
-          disabled={currentFilter == option.value}
-          onClick={() => handleClick(option.value)}
+          active={currentFilter === option?.value || false}
+          disabled={currentFilter === option?.value || false}
+          onClick={() => handleClick(option?.value)}
           style={{
             padding: '5px 15px',
           }}
