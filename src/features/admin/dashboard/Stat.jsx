@@ -32,6 +32,7 @@ function Stat({ icon, title, value, color }) {
             textTransform: 'uppercase',
             fontWeight: 600,
             fontSize: '0.8rem',
+            textAlign: 'left',
           }}
         >
           {title}

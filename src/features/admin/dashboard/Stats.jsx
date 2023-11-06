@@ -10,7 +10,7 @@ function Stats({
   customersCount,
 }) {
   return (
-    <Box display="flex" justifyContent="space-between" gap="2rem">
+    <Box display="flex" justifyContent="space-between" gap="1rem">
       <Stat
         icon={<LuggageIcon></LuggageIcon>}
         title={'Bookings'}
